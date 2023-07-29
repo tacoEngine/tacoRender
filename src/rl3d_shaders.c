@@ -14,6 +14,8 @@
 static Shader gBufferShader = {0};
 static Shader depthDisplayShader = {0};
 static Shader addShader = {0};
+static Shader bloomShaderHorizontal = {0};
+static Shader bloomShaderVertical = {0};
 
 const char *rl3d_gbuf_vs = "#version 330 core\n"
                            "in vec3 vertexPosition;\n"
@@ -116,6 +118,44 @@ const char *rl3d_add_fs = "#version 330 core\n"
                           "    finalColor = texel0 + texel1;\n"
                           "}";
 
+const char *rl3d_blur_hor_fs = "#version 330 core\n"
+                               "in vec2 fragTexCoord;\n"
+                               "out vec4 finalColor;\n"
+                               "uniform sampler2D image;\n"
+                               "uniform float radius;\n"
+
+                               "uniform float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);\n"
+                               "uniform float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);\n"
+
+                               "void main() {"
+                               "    vec2 tex_offset = 1.0 / textureSize(image, 0) * radius; // gets size of single texel\n"
+                               "    vec4 result = texture(image, fragTexCoord) * weight[0]; // current fragment's contribution\n"
+                               "    for(int i = 1; i < 3; ++i) {\n"
+                               "        result += texture(image, fragTexCoord + vec2(offset[i] * tex_offset.x, 0.0)) * weight[i];\n"
+                               "        result += texture(image, fragTexCoord - vec2(offset[i] * tex_offset.x, 0.0)) * weight[i];\n"
+                               "    }\n"
+                               "    finalColor = result;\n"
+                               "}";
+
+const char *rl3d_blur_vert_fs = "#version 330 core\n"
+                                "in vec2 fragTexCoord;\n"
+                                "out vec4 finalColor;\n"
+                                "uniform sampler2D image;\n"
+                                "uniform float radius;\n"
+
+                                "uniform float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);\n"
+                                "uniform float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);\n"
+
+                                "void main() {"
+                                "    vec2 tex_offset = 1.0 / textureSize(image, 0) * radius; // gets size of single texel\n"
+                                "    vec4 result = texture(image, fragTexCoord) * weight[0]; // current fragment's contribution\n"
+                                "    for(int i = 1; i < 3; ++i) {\n"
+                                "        result += texture(image, fragTexCoord + vec2(0.0, offset[i] * tex_offset.y)) * weight[i];\n"
+                                "        result += texture(image, fragTexCoord - vec2(0.0, offset[i] * tex_offset.y)) * weight[i];\n"
+                                "    }\n"
+                                "    finalColor = result;\n"
+                                "}";
+
 void LoadShaders() {
     if (gBufferShader.id == 0) {
         gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
@@ -129,6 +169,8 @@ void LoadShaders() {
 
         depthDisplayShader = LoadShaderFromMemory(NULL, rl3d_depth_display_fs);
         addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
+        bloomShaderHorizontal = LoadShaderFromMemory(NULL, rl3d_blur_hor_fs);
+        bloomShaderVertical = LoadShaderFromMemory(NULL, rl3d_blur_vert_fs);
     }
 }
 
@@ -136,6 +178,8 @@ void UnloadShaders() {
     UnloadShader(gBufferShader);
     UnloadShader(depthDisplayShader);
     UnloadShader(addShader);
+    UnloadShader(bloomShaderHorizontal);
+    UnloadShader(bloomShaderVertical);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -147,6 +191,10 @@ Shader GetShader(EmbeddedShader shade) {
             return depthDisplayShader;
         case SHADER_ADD:
             return addShader;
+        case SHADER_BLUR_HOR:
+            return bloomShaderHorizontal;
+        case SHADER_BLUR_VERT:
+            return bloomShaderVertical;
     }
     return LoadMaterialDefault().shader;
 }

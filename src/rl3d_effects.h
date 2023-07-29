@@ -18,6 +18,8 @@ extern "C" {
 
 void ShadeFlat(GBufferPresenter presenter);
 
+void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radius);
+
 #ifdef __cplusplus
 }
 #endif
