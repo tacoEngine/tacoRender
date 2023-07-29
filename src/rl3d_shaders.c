@@ -16,6 +16,7 @@ static Shader depthDisplayShader = {0};
 static Shader addShader = {0};
 static Shader bloomShaderHorizontal = {0};
 static Shader bloomShaderVertical = {0};
+static Shader skyboxShader = {0};
 
 const char *rl3d_gbuf_vs = "#version 330 core\n"
                            "in vec3 vertexPosition;\n"
@@ -156,6 +157,28 @@ const char *rl3d_blur_vert_fs = "#version 330 core\n"
                                 "    finalColor = result;\n"
                                 "}";
 
+const char *rl3d_skybox_vs = "#version 330 core\n"
+                             "in vec3 vertexPosition;\n"
+                             "out vec3 fragTexCoord;\n"
+                             "uniform mat4 matModel;\n"
+                             "uniform mat4 matProjection;\n"
+                             "uniform mat4 matView;\n"
+                             ""
+                             "void main() {\n"
+                             "    mat4 rotView = mat4(mat3(matView));\n"
+                             "    fragTexCoord = vertexPosition;\n"
+                             "    gl_Position = matProjection * rotView * vec4(vertexPosition, 1.0);\n"
+                             "}";
+
+const char *rl3d_skybox_fs = "#version 330 core\n"
+                             "out vec4 finalColor;\n"
+                             "in vec3 fragTexCoord;\n"
+                             "uniform samplerCube skybox;\n"
+                             ""
+                             "void main() {\n"
+                             "    finalColor = texture(skybox, fragTexCoord + vec3(0, 0, 0));\n"
+                             "}";
+
 void LoadShaders() {
     if (gBufferShader.id == 0) {
         gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
@@ -171,6 +194,10 @@ void LoadShaders() {
         addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
         bloomShaderHorizontal = LoadShaderFromMemory(NULL, rl3d_blur_hor_fs);
         bloomShaderVertical = LoadShaderFromMemory(NULL, rl3d_blur_vert_fs);
+        skyboxShader = LoadShaderFromMemory(rl3d_skybox_vs, rl3d_skybox_fs);
+
+        skyboxShader.locs[SHADER_LOC_MAP_CUBEMAP] = GetShaderLocation(skyboxShader, "skybox");
+
     }
 }
 
@@ -180,6 +207,7 @@ void UnloadShaders() {
     UnloadShader(addShader);
     UnloadShader(bloomShaderHorizontal);
     UnloadShader(bloomShaderVertical);
+    UnloadShader(skyboxShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -195,6 +223,8 @@ Shader GetShader(EmbeddedShader shade) {
             return bloomShaderHorizontal;
         case SHADER_BLUR_VERT:
             return bloomShaderVertical;
+        case SHADER_SKYBOX:
+            return skyboxShader;
     }
     return LoadMaterialDefault().shader;
 }

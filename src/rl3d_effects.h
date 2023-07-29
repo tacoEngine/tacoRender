@@ -16,6 +16,14 @@
 extern "C" {
 #endif
 
+typedef struct Skybox {
+    Model box;
+} Skybox;
+
+Skybox LoadSkybox(const char *filename);
+Skybox LoadSkyboxImage(Image image);
+void DrawSkybox(Skybox skybox, Color tint);
+
 void ShadeFlat(GBufferPresenter presenter);
 
 void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radius);

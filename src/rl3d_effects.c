@@ -13,6 +13,47 @@
 
 #include <rlgl.h>
 
+Skybox LoadSkybox(const char *filename) {
+    return LoadSkyboxImage(LoadImage(filename));
+}
+
+Skybox LoadSkyboxImage(Image image) {
+    float vertices[] = {
+            -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+            -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+            -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f,
+    };
+
+    Mesh mesh = (Mesh){0};
+    mesh.vertices = vertices;
+    mesh.vertexCount = sizeof(vertices) / sizeof(float) / 3;
+    mesh.triangleCount = mesh.vertexCount / 3;
+
+    UploadMesh(&mesh, false);
+
+    Model skybox = LoadModelFromMesh(mesh);
+    Texture cubemap = LoadTextureCubemap(image, CUBEMAP_LAYOUT_AUTO_DETECT);
+
+    skybox.materials[0].shader = GetShader(SHADER_SKYBOX);
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = cubemap;
+
+    return (Skybox) {
+            skybox
+    };
+}
+
+void DrawSkybox(Skybox skybox, Color tint) {
+    rlDisableDepthMask();
+
+    DrawModel(skybox.box, (Vector3){0, 0, 0}, 1, tint);
+
+    rlEnableDepthMask();
+}
+
 void ShadeFlat(GBufferPresenter presenter) {
     BeginTextureMode(presenter.target);
 

@@ -21,6 +21,7 @@ typedef enum EmbeddedShader {
     SHADER_ADD,
     SHADER_BLUR_HOR,
     SHADER_BLUR_VERT,
+    SHADER_SKYBOX
 } EmbeddedShader;
 
 void LoadShaders();
