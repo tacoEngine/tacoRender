@@ -45,7 +45,7 @@ int main() {
         { // Render to GBuffers
             BeginGBufferMode(buffers);
 
-            ClearBackground(BLANK);
+            ClearBackground(BLACK);
 
             BeginMode3D(camera);
 

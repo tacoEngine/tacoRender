@@ -172,3 +172,23 @@ void LightPhongPoint(GBufferPresenter presenter, Camera camera, Vector3 position
 
     RunSingleShader(presenter, camera, pointPhong);
 }
+
+void LightPhongSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
+    static Shader sunPhong = {0};
+    static int dirLoc, intensityLoc, colorLoc;
+    if (sunPhong.id == 0) {
+        sunPhong = GetShader(SHADER_PHONG_SUN);
+        dirLoc = GetShaderLocation(sunPhong, "direction");
+        intensityLoc = GetShaderLocation(sunPhong, "intensity");
+        colorLoc = GetShaderLocation(sunPhong, "color");
+    }
+
+    direction = Vector3Normalize(direction);
+
+    SetShaderValue(sunPhong, dirLoc, &direction, SHADER_UNIFORM_VEC3);
+    SetShaderValue(sunPhong, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
+    Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
+    SetShaderValue(sunPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
+
+    RunSingleShader(presenter, camera, sunPhong);
+}

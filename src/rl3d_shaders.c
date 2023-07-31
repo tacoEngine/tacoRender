@@ -19,6 +19,7 @@ static Shader bloomShaderVertical = {0};
 static Shader skyboxShader = {0};
 static Shader flipYShader = {0};
 static Shader phongPointShader = {0};
+static Shader phongSunShader = {0};
 
 #define LINEARIZE_DEPTH "const float CULL_NEAR = 0.01;" \
 "const float CULL_FUR = 1000.0;\n" \
@@ -74,7 +75,7 @@ const char *rl3d_gbuf_fs = "#version 330 core\n"
                            "layout (location = 2) out vec3 height;\n"
                            "layout (location = 3) out vec3 metallic;\n"
                            "layout (location = 4) out vec3 roughness;\n"
-                           "layout (location = 5) out vec4 emission;\n"
+                           "layout (location = 5) out vec3 emission;\n"
                            "layout (location = 6) out float ao;\n"
                            "uniform sampler2D albedoMap;\n"
                            "uniform sampler2D normalMap;\n"
@@ -106,7 +107,7 @@ const char *rl3d_gbuf_fs = "#version 330 core\n"
                            "    height    = texture(heightMap, fragTexCoord).rgb;\n"
                            "    metallic  = texture(metallicMap, fragTexCoord).rgb;\n"
                            "    roughness = texture(roughnessMap, fragTexCoord).rgb;\n"
-                           "    emission  = texture(emissionMap, fragTexCoord).rgba;\n"
+                           "    emission  = texture(emissionMap, fragTexCoord).rgb;\n"
                            "    ao        = texture(occlusionMap, fragTexCoord).r;\n"
                            "}";
 
@@ -228,7 +229,7 @@ const char *rl3d_phong_point_fs = "#version 330 core\n"
                                   "void main() {\n"
                                   "   finalColor = vec4(0, 0, 0, 0);"
 
-                                  "   vec4 color = texture(albedoMap, fragTexCoord);\n"
+                                  "   vec4 albedo = texture(albedoMap, fragTexCoord);\n"
                                   "   vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
                                   "   float dist = texture(depth, fragTexCoord).r;\n"
                                   "   vec3 worldPos = WorldPosFromDepth(dist);\n"
@@ -246,8 +247,43 @@ const char *rl3d_phong_point_fs = "#version 330 core\n"
                                   "   float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
                                   "   float att = 1.0 / (lightDistance * lightDistance);\n"
-                                  "   finalColor = intensity * att * (diff * color + specular) * color;\n"
+                                  "   finalColor = intensity * att * (diff * albedo + specular) * color;\n"
                                   "}";
+
+const char *rl3d_phong_sun_fs = "#version 330 core\n"
+                                "in vec2 fragTexCoord;\n"
+                                "out vec4 finalColor;\n"
+                                "uniform sampler2D albedoMap;\n"
+                                "uniform sampler2D normalMap;\n"
+                                "uniform sampler2D depth;\n"
+                                "uniform vec3 camPos;\n"
+                                "uniform mat4 invView;\n"
+                                "uniform mat4 invProj;\n"
+                                "uniform vec3 direction;\n"
+                                "uniform float intensity;\n"
+                                "uniform vec4 color;\n"
+                                LINEARIZE_DEPTH
+                                WORLD_POS_FROM_DEPTH
+                                "void main() {\n"
+                                "   finalColor = vec4(0, 0, 0, 0);"
+
+                                "   vec4 albedo = texture(albedoMap, fragTexCoord);\n"
+                                "   vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
+                                "   float dist = texture(depth, fragTexCoord).r;\n"
+                                "   vec3 worldPos = WorldPosFromDepth(dist);\n"
+                                "   vec3 viewDir = normalize(camPos - worldPos);\n"
+
+                                "   vec3 lightDir = -direction;\n"
+
+                                "   float diff = max(dot(lightDir, normal), 0.0);\n"
+
+                                "   if (diff <= 0.1) return;\n"
+
+                                "   vec3 halfwayDir = normalize(lightDir + viewDir);\n"
+                                "   float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
+
+                                "   finalColor = intensity * (diff * albedo + specular) * color;\n"
+                                "}";
 
 void LoadShaders() {
     if (gBufferShader.id == 0) {
@@ -273,6 +309,11 @@ void LoadShaders() {
         phongPointShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(phongPointShader, "albedoMap");
         phongPointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(phongPointShader, "normalMap");
         phongPointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(phongPointShader, "camPos");
+
+        phongSunShader = LoadShaderFromMemory(NULL, rl3d_phong_sun_fs);
+        phongSunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(phongSunShader, "albedoMap");
+        phongSunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(phongSunShader, "normalMap");
+        phongSunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(phongSunShader, "camPos");
     }
 }
 
@@ -285,6 +326,7 @@ void UnloadShaders() {
     UnloadShader(skyboxShader);
     UnloadShader(flipYShader);
     UnloadShader(phongPointShader);
+    UnloadShader(phongSunShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -305,6 +347,8 @@ Shader GetShader(EmbeddedShader shade) {
             return flipYShader;
         case SHADER_PHONG_POINT:
             return phongPointShader;
+        case SHADER_PHONG_SUN:
+            return phongSunShader;
     }
     return LoadMaterialDefault().shader;
 }

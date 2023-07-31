@@ -44,7 +44,7 @@ GBuffers LoadGBuffers(int width, int height) {
         target.height = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.metallic = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.roughness = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
-        target.emission = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.emission = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.ao = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
 
         SetTextureFilter(target.emission, TEXTURE_FILTER_BILINEAR);
@@ -161,9 +161,11 @@ void SetBackbufferFilter(GBufferPresenter presenter, int filter) {
 }
 
 #ifndef NO_CONVENIENCE
+
 void DrawDepth(Texture2D texture, Vector2 position, float rotation, float scale, Color tint) {
     BeginShaderMode(GetShader(SHADER_DEPTH_DISPLAY));
     DrawTextureEx(texture, position, rotation, scale, tint);
     EndShaderMode();
 }
+
 #endif

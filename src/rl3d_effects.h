@@ -32,6 +32,7 @@ void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radiu
 void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader);
 
 void LightPhongPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint);
+void LightPhongSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint);
 
 #ifdef __cplusplus
 }

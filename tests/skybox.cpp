@@ -36,7 +36,7 @@ int main() {
         { // Render to GBuffers
             BeginGBufferMode(buffers);
 
-            rlClearScreenBuffers();
+            ClearBackground(BLACK);
 
             BeginMode3D(camera);
 
