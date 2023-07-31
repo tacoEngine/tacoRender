@@ -17,11 +17,12 @@ int main() {
     const int screenWidth = 1000, screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "rl3d emissions sphere");
+    Init3D();
 
     Camera3D camera = (Camera3D) {
-        .position = (Vector3) {0, 0, -5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
-            0, 1, 0
-        }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+            .position = (Vector3) {0, 0, -5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
+                    0, 1, 0
+            }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
     };
 
     Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
@@ -53,7 +54,7 @@ int main() {
 
             BeginMode3D(camera);
 
-            DrawModel(sphere, (Vector3){0,0,0}, 1, WHITE);
+            DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
 
             EndMode3D();
 
@@ -68,5 +69,6 @@ int main() {
         Present(presenter);
     }
 
+    Uninit3D();
     CloseWindow();
 }

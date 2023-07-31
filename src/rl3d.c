@@ -13,6 +13,14 @@
 #include <rlgl.h>
 #include <stddef.h>
 
+void Init3D() {
+    LoadShaders();
+}
+
+void Uninit3D() {
+    UnloadShaders();
+}
+
 Texture LoadEmptyTexture(int width, int height, PixelFormat format) {
     Texture texture;
     texture.id = rlLoadTexture(NULL, width, height, format, 1);

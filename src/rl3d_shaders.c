@@ -288,7 +288,6 @@ void UnloadShaders() {
 }
 
 Shader GetShader(EmbeddedShader shade) {
-    LoadShaders();
     switch (shade) {
         case SHADER_GBUF:
             return gBufferShader;

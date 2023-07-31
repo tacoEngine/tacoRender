@@ -34,6 +34,9 @@ typedef struct GBufferPresenter {
     GBuffers source;
 } GBufferPresenter;
 
+void Init3D();
+void Uninit3D();
+
 GBuffers LoadGBuffers(int width, int height);
 GBufferPresenter LoadPresenter(GBuffers buffers);
 

@@ -13,6 +13,7 @@ int main() {
     SetTargetFPS(60);
 
     InitWindow(500, 500, "rl3d_gbuffer_sphere");
+    Init3D();
 
     Camera3D camera = (Camera3D) {
         .position = (Vector3) {0, 0, -2}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
@@ -76,5 +77,6 @@ int main() {
         }
     }
 
+    Uninit3D();
     CloseWindow();
 }

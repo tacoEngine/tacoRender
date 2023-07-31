@@ -17,6 +17,7 @@ int main() {
     const int screenWidth = 1000, screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "rl3d phong sphere");
+    Init3D();
 
     Camera3D camera = (Camera3D) {
             .position = (Vector3) {0, 0, -5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
@@ -68,5 +69,6 @@ int main() {
         Present(presenter);
     }
 
+    Uninit3D();
     CloseWindow();
 }
