@@ -43,8 +43,10 @@ void BeginGBufferMode(GBuffers buffers);
 void EndGBufferMode();
 
 void ClearPresenter(GBufferPresenter presenter);
+// Renders target to screen
 void Present(GBufferPresenter presenter);
-void AddBackBuffer(GBufferPresenter presenter, int back_index);
+// Adds target += back[0]
+void AddBackBuffer(GBufferPresenter presenter);
 void SetBackbufferFilter(GBufferPresenter presenter, int filter);
 
 #ifndef NO_CONVENIENCE

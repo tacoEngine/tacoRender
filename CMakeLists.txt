@@ -11,7 +11,9 @@ add_library(rl3d
         src/rl3d_shaders.c
         src/rl3d_shaders.h
         src/rl3d_effects.c
-        src/rl3d_effects.h)
+        src/rl3d_effects.h
+        src/rl3d_gl.c
+        src/rl3d_gl.h)
 target_link_libraries(rl3d raylib)
 target_include_directories(rl3d PUBLIC src)
 
@@ -23,3 +25,6 @@ target_link_libraries(rl3d_emission_sphere rl3d)
 
 add_executable(rl3d_skybox tests/skybox.cpp)
 target_link_libraries(rl3d_skybox rl3d)
+
+add_executable(rl3d_phong_sphere tests/phong_sphere.cpp)
+target_link_libraries(rl3d_phong_sphere rl3d)

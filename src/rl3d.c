@@ -11,7 +11,6 @@
 #include "rl3d_shaders.h"
 
 #include <rlgl.h>
-#include <raymath.h>
 #include <stddef.h>
 
 Texture LoadEmptyTexture(int width, int height, PixelFormat format) {
@@ -128,52 +127,24 @@ void Present(GBufferPresenter presenter) {
     EndDrawing();
 }
 
-void AddBackBuffer(GBufferPresenter presenter, int back_index) {
-    static Model screenQuad = {0};
+void AddBackBuffer(GBufferPresenter presenter) {
+    rlEnableColorBlend();
 
-    if (screenQuad.meshCount == 0) {
-        screenQuad = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
-        screenQuad.materials[0].shader = GetShader(SHADER_ADD);
-    }
-
-    int temp = !back_index;
-
-    // Copy what has already been rendered to a back buffer
-    BeginTextureMode(presenter.back[temp]);
-    rlClearScreenBuffers();
-    DrawTexture(presenter.target.texture, 0, 0, WHITE);
-    EndTextureMode();
-
-    screenQuad.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = presenter.back[0].texture;
-    screenQuad.materials[0].maps[MATERIAL_MAP_METALNESS].texture = presenter.back[1].texture;
-
-    // todo: optimise this part
-    // Add the two back buffers together
     BeginTextureMode(presenter.target);
-    rlClearScreenBuffers();
 
-    // Inlined BeginMode3D
-    rlDrawRenderBatchActive();
+    BeginBlendMode(BLEND_ADD_COLORS);
 
-    rlMatrixMode(RL_PROJECTION);
-    rlPushMatrix();
-    rlLoadIdentity();
+    BeginShaderMode(GetShader(SHADER_FLIP_Y));
 
-    rlOrtho(-0.5, 0.5, -0.5, 0.5, RL_CULL_DISTANCE_NEAR, RL_CULL_DISTANCE_FAR);
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 
-    rlMatrixMode(RL_MODELVIEW);
-    rlLoadIdentity();
+    EndShaderMode();
 
-    Matrix matView = MatrixLookAt((Vector3) {0, 1, 0}, (Vector3) {0}, (Vector3) {0, 0, 1});
-    rlMultMatrixf(MatrixToFloat(matView));
-
-    rlDisableDepthTest();
-
-    DrawModel(screenQuad, (Vector3) {0, 0, 0}, 1, WHITE);
-
-    EndMode3D();
+    EndBlendMode();
 
     EndTextureMode();
+
+    rlDisableColorBlend();
 }
 
 void SetBackbufferFilter(GBufferPresenter presenter, int filter) {

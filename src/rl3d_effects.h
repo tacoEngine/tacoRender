@@ -10,6 +10,7 @@
 #define RL3D_SRC_RL3D_EFFECTS_H_
 
 #include <raylib.h>
+
 #include "rl3d.h"
 
 #ifdef __cplusplus
@@ -27,6 +28,10 @@ void DrawSkybox(Skybox skybox, Color tint);
 void ShadeFlat(GBufferPresenter presenter);
 
 void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radius);
+
+void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader);
+
+void LightPhongPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint);
 
 #ifdef __cplusplus
 }
