@@ -52,15 +52,16 @@ const char *rl3d_gbuf_vs = "#version 330 core\n"
                            "out vec2 fragTexCoord2;\n"
                            "uniform mat4 mvp;\n"
                            "uniform mat4 matModel;\n"
+                           "uniform mat4 matNormal;\n"
                            "void main() {\n"
                            "    fragPosition = vec3(matModel * vec4(vertexPosition, 1.0));\n"
                            "    fragTexCoord = vertexTexCoord;\n"
-                           "    fragNormal = vertexNormal;\n"
+                           "    fragNormal = mat3(matNormal) * vertexNormal;\n"
                            "    fragColor = vertexColor;\n"
                            "    fragTangent = vertexTangent;\n"
                            "    fragTexCoord2 = vertexTexCoord2;\n"
 
-                           "    gl_Position = mvp * vec4(fragPosition, 1.0);\n"
+                           "    gl_Position = mvp * vec4(vertexPosition, 1.0);\n"
                            "}";
 
 const char *rl3d_gbuf_fs = "#version 330 core\n"
