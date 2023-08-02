@@ -81,14 +81,47 @@ GBuffers LoadGBuffers(int width, int height) {
     return target;
 }
 
+RenderTexture LoadHDRRenderTexture(int width, int height) {
+    RenderTexture2D target = {0};
+
+    target.id = rlLoadFramebuffer(width, height);
+
+    if (target.id > 0) {
+        rlEnableFramebuffer(target.id);
+
+        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32, 1);
+        target.texture.width = width;
+        target.texture.height = height;
+        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
+        target.texture.mipmaps = 1;
+
+        target.depth.id = rlLoadTextureDepth(width, height, true);
+        target.depth.width = width;
+        target.depth.height = height;
+        target.depth.format = 19;
+        target.depth.mipmaps = 1;
+
+        rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
+
+        if (rlFramebufferComplete(target.id))
+            TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
+
+        rlDisableFramebuffer();
+    } else
+        TRACELOG(LOG_WARNING, "FBO: Framebuffer object can not be created");
+
+    return target;
+}
+
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
     // Todo: Make the presenter target use an HDR color texture
-    presenter.target = LoadRenderTexture(buffers.albedo.width, buffers.albedo.height);
+    presenter.target = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
     // note: back buffer doesn't need to be hdr, but
     // Todo: Make back buffer depthless
-    presenter.back[0] = LoadRenderTexture(buffers.albedo.width, buffers.albedo.height);
-    presenter.back[1] = LoadRenderTexture(buffers.albedo.width, buffers.albedo.height);
+    presenter.back[0] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
+    presenter.back[1] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
     presenter.source = buffers;
 
     SetTextureFilter(presenter.back[0].texture, TEXTURE_FILTER_BILINEAR);
