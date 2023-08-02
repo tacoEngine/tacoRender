@@ -49,11 +49,8 @@ Skybox LoadSkyboxImage(Image image) {
 }
 
 void DrawSkybox(Skybox skybox, Color tint) {
-    rlDisableDepthMask();
-
+    // no need to glDepthFunc(GL_LEQUAL) because that's what rlgl uses by default
     DrawModel(skybox.box, (Vector3) {0, 0, 0}, 1, tint);
-
-    rlEnableDepthMask();
 }
 
 void ShadeFlat(GBufferPresenter presenter) {

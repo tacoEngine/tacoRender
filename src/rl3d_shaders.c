@@ -199,7 +199,7 @@ const char *rl3d_skybox_vs = "#version 330 core\n"
                              "void main() {\n"
                              "    mat4 rotView = mat4(mat3(matView));\n"
                              "    fragTexCoord = vertexPosition;\n"
-                             "    gl_Position = matProjection * rotView * vec4(vertexPosition, 1.0);\n"
+                             "    gl_Position = (matProjection * rotView * vec4(vertexPosition, 1.0)).xyww;\n"
                              "}";
 
 const char *rl3d_skybox_fs = "#version 330 core\n"
