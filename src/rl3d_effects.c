@@ -139,11 +139,11 @@ void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     rlDisableColorBlend();
 }
 
-void LightPhongPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint) {
+void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint) {
     static Shader pointPhong = {0};
     static int posLoc, intensityLoc, radiusLoc, colorLoc;
     if (pointPhong.id == 0) {
-        pointPhong = GetShader(SHADER_PHONG_POINT);
+        pointPhong = GetShader(SHADER_POINT);
         posLoc = GetShaderLocation(pointPhong, "pos");
         intensityLoc = GetShaderLocation(pointPhong, "intensity");
         radiusLoc = GetShaderLocation(pointPhong, "radius");
@@ -170,11 +170,11 @@ void LightPhongPoint(GBufferPresenter presenter, Camera camera, Vector3 position
     RunSingleShader(presenter, camera, pointPhong);
 }
 
-void LightPhongSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
+void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
     static Shader sunPhong = {0};
     static int dirLoc, intensityLoc, colorLoc;
     if (sunPhong.id == 0) {
-        sunPhong = GetShader(SHADER_PHONG_SUN);
+        sunPhong = GetShader(SHADER_SUN);
         dirLoc = GetShaderLocation(sunPhong, "direction");
         intensityLoc = GetShaderLocation(sunPhong, "intensity");
         colorLoc = GetShaderLocation(sunPhong, "color");

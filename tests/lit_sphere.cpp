@@ -63,8 +63,8 @@ int main() {
 
         ClearPresenter(presenter);
 
-        LightPhongSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
-        LightPhongPoint(presenter, camera, (Vector3) {2 * sinf(GetTime()), 2 * cosf(GetTime()), -2}, 2, WHITE);
+        LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
+        LightPoint(presenter, camera, (Vector3) {2 * sinf(GetTime()), 2 * cosf(GetTime()), -2}, 2, WHITE);
         AddBackBuffer(presenter);
 
         Present(presenter);

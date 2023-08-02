@@ -26,5 +26,5 @@ target_link_libraries(rl3d_emission_sphere rl3d)
 add_executable(rl3d_skybox tests/skybox.cpp)
 target_link_libraries(rl3d_skybox rl3d)
 
-add_executable(rl3d_phong_sphere tests/phong_sphere.cpp)
-target_link_libraries(rl3d_phong_sphere rl3d)
+add_executable(rl3d_lit_sphere tests/lit_sphere.cpp)
+target_link_libraries(rl3d_lit_sphere rl3d)
