@@ -97,6 +97,33 @@ void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radiu
     AddBackBuffer(presenter);
 }
 
+void ApplyGammaCorrection(GBufferPresenter presenter, float gamma) {
+    static Shader gammaShader = {0};
+    static int gammaLoc;
+    if (gammaShader.id == 0) {
+        gammaShader = GetShader(SHADER_GAMMA);
+        gammaLoc = GetShaderLocation(gammaShader, "gamma");
+    }
+
+    SetShaderValue(gammaShader, gammaLoc, &gamma, SHADER_UNIFORM_FLOAT);
+
+    BeginTextureMode(presenter.back[0]);
+
+    BeginShaderMode(gammaShader);
+
+    DrawTexture(presenter.target.texture, 0, 0, WHITE);
+
+    EndShaderMode();
+
+    EndTextureMode();
+
+    BeginTextureMode(presenter.target);
+
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
+
+    EndTextureMode();
+}
+
 void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     int depthLoc = GetShaderLocation(shader, "depth");
     int invViewLoc = GetShaderLocation(shader, "invView");

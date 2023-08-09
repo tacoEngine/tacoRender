@@ -89,10 +89,10 @@ RenderTexture LoadHDRRenderTexture(int width, int height) {
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
 
-        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32, 1);
+        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1);
         target.texture.width = width;
         target.texture.height = height;
-        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
+        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R16G16B16A16;
         target.texture.mipmaps = 1;
 
         target.depth.id = rlLoadTextureDepth(width, height, true);

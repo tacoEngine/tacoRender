@@ -20,12 +20,13 @@ static Shader skyboxShader = {0};
 static Shader flipYShader = {0};
 static Shader pointShader = {0};
 static Shader sunShader = {0};
+static Shader gammaShader = {0};
 
 #define LINEARIZE_DEPTH "const float CULL_NEAR = 0.01;" \
-"const float CULL_FUR = 1000.0;\n" \
+"const float CULL_FAR = 1000.0;\n" \
 "float LinearizeDepth(float depth) {\n" \
 "float z = depth * 2.0 - 1.0; // back to NDC\n" \
-"return (2.0 * CULL_NEAR * CULL_FUR) / (CULL_FUR + CULL_NEAR - z * (CULL_FUR - CULL_NEAR));\n" \
+"return (2.0 * CULL_NEAR * CULL_FAR) / (CULL_FAR + CULL_NEAR - z * (CULL_FAR - CULL_NEAR));\n" \
 "}\n"
 
 #define WORLD_POS_FROM_DEPTH "vec3 WorldPosFromDepth(float depth) {\n" \
@@ -228,27 +229,25 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             LINEARIZE_DEPTH
                             WORLD_POS_FROM_DEPTH
                             "void main() {\n"
-                            "   finalColor = vec4(0, 0, 0, 0);"
+                            "    finalColor = vec4(0, 0, 0, 0);"
 
-                            "   vec4 albedo = texture(albedoMap, fragTexCoord);\n"
-                            "   vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
-                            "   float dist = texture(depth, fragTexCoord).r;\n"
-                            "   vec3 worldPos = WorldPosFromDepth(dist);\n"
-                            "   vec3 viewDir = normalize(camPos - worldPos);\n"
+                            "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
+                            "    vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
+                            "    float dist = texture(depth, fragTexCoord).r;\n"
+                            "    vec3 worldPos = WorldPosFromDepth(dist);\n"
+                            "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
-                            "   float lightDistance = distance(pos, worldPos);\n"
-                            "   if (lightDistance * lightDistance > radius) return;\n"
-                            "   vec3 lightDir = normalize(pos - worldPos);\n"
+                            "    float lightDistance = distance(pos, worldPos);\n"
+                            "    if (lightDistance * lightDistance > radius) return;\n"
+                            "    vec3 lightDir = normalize(pos - worldPos);\n"
 
-                            "   float diff = max(dot(lightDir, normal), 0.0);\n"
+                            "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
-                            "   if (diff <= 0.1) return;\n"
+                            "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
+                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
-                            "   vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                            "   float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
-
-                            "   float att = 1.0 / (lightDistance * lightDistance);\n"
-                            "   finalColor = intensity * att * (diff * albedo + specular) * color;\n"
+                            "    float att = 1.0 / (lightDistance * lightDistance);\n"
+                            "    finalColor = intensity * att * (diff * albedo + specular) * color;\n"
                             "}";
 
 const char *rl3d_sun_fs = "#version 330 core\n"
@@ -266,25 +265,34 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           LINEARIZE_DEPTH
                           WORLD_POS_FROM_DEPTH
                           "void main() {\n"
-                          "   finalColor = vec4(0, 0, 0, 0);"
+                          "    finalColor = vec4(0, 0, 0, 0);"
 
-                          "   vec4 albedo = texture(albedoMap, fragTexCoord);\n"
-                          "   vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
-                          "   float dist = texture(depth, fragTexCoord).r;\n"
-                          "   vec3 worldPos = WorldPosFromDepth(dist);\n"
-                          "   vec3 viewDir = normalize(camPos - worldPos);\n"
+                          "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
+                          "    vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
+                          "    float dist = texture(depth, fragTexCoord).r;\n"
+                          "    vec3 worldPos = WorldPosFromDepth(dist);\n"
+                          "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
-                          "   vec3 lightDir = -direction;\n"
+                          "    vec3 lightDir = -direction;\n"
 
-                          "   float diff = max(dot(lightDir, normal), 0.0);\n"
+                          "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
-                          "   if (diff <= 0.1) return;\n"
+                          "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
+                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
-                          "   vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                          "   float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
-
-                          "   finalColor = intensity * (diff * albedo + specular) * color;\n"
+                          "    finalColor = intensity * (diff * albedo + specular) * color;\n"
                           "}";
+
+const char *rl3d_gamma = "#version 330 core\n"
+                         "in vec2 fragTexCoord;\n"
+                         "out vec4 finalColor;\n"
+                         "uniform sampler2D source;\n"
+                         "uniform float gamma = 2.2;\n"
+                         "void main() {\n"
+                         "    vec4 color = texture(source, fragTexCoord);\n"
+                         "    vec3 corrected = pow(color.rgb, vec3(1.0 / gamma));"
+                         "    finalColor = vec4(corrected, color.a);"
+                         "}";
 
 void LoadShaders() {
     if (gBufferShader.id == 0) {
@@ -315,6 +323,8 @@ void LoadShaders() {
         sunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(sunShader, "albedoMap");
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
+
+        gammaShader = LoadShaderFromMemory(NULL, rl3d_gamma);
     }
 }
 
@@ -328,6 +338,7 @@ void UnloadShaders() {
     UnloadShader(flipYShader);
     UnloadShader(pointShader);
     UnloadShader(sunShader);
+    UnloadShader(gammaShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -350,6 +361,8 @@ Shader GetShader(EmbeddedShader shade) {
             return pointShader;
         case SHADER_SUN:
             return sunShader;
+        case SHADER_GAMMA:
+            return gammaShader;
     }
     return LoadMaterialDefault().shader;
 }

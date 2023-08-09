@@ -12,7 +12,7 @@
 int main() {
     SetTargetFPS(60);
 
-    InitWindow(500, 500, "rl3d_gbuffer_sphere");
+    InitWindow(500, 500, "rl3d gbuffer sphere");
     Init3D();
 
     Camera3D camera = (Camera3D) {

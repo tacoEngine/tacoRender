@@ -9,18 +9,16 @@
 #include <rl3d.h>
 #include <rl3d_effects.h>
 
-#include <cmath>
-
 int main() {
     SetTargetFPS(60);
 
     const int screenWidth = 1000, screenHeight = 800;
 
-    InitWindow(screenWidth, screenHeight, "rl3d lit sphere");
+    InitWindow(screenWidth, screenHeight, "rl3d gamma corrected plane");
     Init3D();
 
     Camera3D camera = (Camera3D) {
-            .position = (Vector3) {0, 0, -5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
+            .position = (Vector3) {2, 3, 5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
                     0, 1, 0
             }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
     };
@@ -33,28 +31,32 @@ int main() {
     Texture emission = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
     Texture ao = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
 
-    Model sphere = LoadModelFromMesh(GenMeshSphere(1, 50, 50));
-    sphere.materials[0].shader = GetGBufferShader();
-    sphere.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
-    sphere.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
-    sphere.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
-    sphere.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
-    sphere.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughness;
-    sphere.materials[0].maps[MATERIAL_MAP_EMISSION].texture = emission;
-    sphere.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = ao;
+    Model plane = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));
+    plane.materials[0].shader = GetGBufferShader();
+    plane.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
+    plane.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
+    plane.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
+    plane.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
+    plane.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughness;
+    plane.materials[0].maps[MATERIAL_MAP_EMISSION].texture = emission;
+    plane.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = ao;
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
 
+    bool correct = true;
+
     while (!WindowShouldClose()) {
+        if (IsKeyPressed(KEY_SPACE)) correct = !correct;
+
         { // Render to GBuffers
             BeginGBufferMode(buffers);
 
-            ClearBackground(BLACK);
+            ClearBackground(BLANK);
 
             BeginMode3D(camera);
 
-            DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
+            DrawModel(plane, (Vector3) {0, 0, 0}, 1, WHITE);
 
             EndMode3D();
 
@@ -63,14 +65,16 @@ int main() {
 
         ClearPresenter(presenter);
 
-        auto time = (float) GetTime();
+        LightPoint(presenter, camera, (Vector3) {-3, 0.5, 0}, 1, DARKGRAY);
+        LightPoint(presenter, camera, (Vector3) {-1, 0.5, 0}, 1, GRAY);
+        LightPoint(presenter, camera, (Vector3) { 3, 0.5, 0}, 1, LIGHTGRAY);
+        LightPoint(presenter, camera, (Vector3) { 1, 0.5, 0}, 1, WHITE);
 
-        LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
-        LightPoint(presenter, camera, (Vector3) {2 * sinf(time), 2 * cosf(time), -2}, 2, WHITE);
         AddBackBuffer(presenter);
 
-        ApplyGammaCorrection(presenter, 2.2);
+        if (correct) ApplyGammaCorrection(presenter, 2.2);
 
+        // Render GBuffers to screen
         Present(presenter);
     }
 

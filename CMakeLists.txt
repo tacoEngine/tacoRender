@@ -28,3 +28,6 @@ target_link_libraries(rl3d_skybox rl3d)
 
 add_executable(rl3d_lit_sphere tests/lit_sphere.cpp)
 target_link_libraries(rl3d_lit_sphere rl3d)
+
+add_executable(rl3d_gamma_plane tests/gamma_plane.cpp)
+target_link_libraries(rl3d_gamma_plane rl3d)

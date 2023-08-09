@@ -25,6 +25,7 @@ typedef enum EmbeddedShader {
     SHADER_FLIP_Y,
     SHADER_POINT,
     SHADER_SUN,
+    SHADER_GAMMA,
 } EmbeddedShader;
 
 void LoadShaders();
