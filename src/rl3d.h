@@ -50,6 +50,7 @@ void ClearPresenter(GBufferPresenter presenter);
 void Present(GBufferPresenter presenter);
 // Adds target += back[0]
 void AddBackBuffer(GBufferPresenter presenter);
+
 void SetBackbufferFilter(GBufferPresenter presenter, int filter);
 
 #ifndef NO_CONVENIENCE

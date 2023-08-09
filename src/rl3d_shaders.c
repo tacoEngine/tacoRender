@@ -247,7 +247,7 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
                             "    float att = 1.0 / (lightDistance * lightDistance);\n"
-                            "    finalColor = intensity * att * (diff * albedo + specular) * color;\n"
+                            "    finalColor = intensity * att * (diff + specular) * color * albedo;\n"
                             "}";
 
 const char *rl3d_sun_fs = "#version 330 core\n"
@@ -280,7 +280,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
                           "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
-                          "    finalColor = intensity * (diff * albedo + specular) * color;\n"
+                          "    finalColor = intensity * (diff + specular) * color * albedo;\n"
                           "}";
 
 const char *rl3d_gamma = "#version 330 core\n"
