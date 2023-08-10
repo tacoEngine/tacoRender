@@ -21,6 +21,7 @@ static Shader flipYShader = {0};
 static Shader pointShader = {0};
 static Shader sunShader = {0};
 static Shader gammaShader = {0};
+static Shader toneMapReinhardShader = {0};
 
 #define LINEARIZE_DEPTH "const float CULL_NEAR = 0.01;" \
 "const float CULL_FAR = 1000.0;\n" \
@@ -244,7 +245,7 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                             "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
+                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 64);\n"
 
                             "    float att = 1.0 / (lightDistance * lightDistance);\n"
                             "    finalColor = intensity * att * (diff + specular) * color * albedo;\n"
@@ -278,7 +279,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                           "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
+                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 64);\n"
 
                           "    finalColor = intensity * (diff + specular) * color * albedo;\n"
                           "}";
@@ -293,6 +294,17 @@ const char *rl3d_gamma = "#version 330 core\n"
                          "    vec3 corrected = pow(color.rgb, vec3(1.0 / gamma));"
                          "    finalColor = vec4(corrected, color.a);"
                          "}";
+
+const char *rl3d_tone_map_reinhard = "#version 330 core\n"
+                                     "in vec2 fragTexCoord;\n"
+                                     "out vec4 finalColor;\n"
+                                     "uniform sampler2D source;\n"
+                                     "uniform float gamma = 2.2;\n"
+                                     "void main() {\n"
+                                     "    vec4 color = texture(source, fragTexCoord);\n"
+                                     "    vec3 mapped = color.rgb / (color.rgb + vec3(1));"
+                                     "    finalColor = vec4(mapped, color.a);"
+                                     "}";
 
 void LoadShaders() {
     if (gBufferShader.id == 0) {
@@ -325,6 +337,8 @@ void LoadShaders() {
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 
         gammaShader = LoadShaderFromMemory(NULL, rl3d_gamma);
+
+        toneMapReinhardShader = LoadShaderFromMemory(NULL, rl3d_tone_map_reinhard);
     }
 }
 
@@ -339,6 +353,7 @@ void UnloadShaders() {
     UnloadShader(pointShader);
     UnloadShader(sunShader);
     UnloadShader(gammaShader);
+    UnloadShader(toneMapReinhardShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -363,6 +378,8 @@ Shader GetShader(EmbeddedShader shade) {
             return sunShader;
         case SHADER_GAMMA:
             return gammaShader;
+        case SHADER_TONE_MAP_REINHARD:
+            return toneMapReinhardShader;
     }
     return LoadMaterialDefault().shader;
 }

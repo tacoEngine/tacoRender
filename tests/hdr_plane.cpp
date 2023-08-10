@@ -14,7 +14,7 @@ int main() {
 
     const int screenWidth = 1000, screenHeight = 800;
 
-    InitWindow(screenWidth, screenHeight, "rl3d gamma corrected plane");
+    InitWindow(screenWidth, screenHeight, "rl3d hdr plane");
     Init3D();
 
     Camera3D camera = (Camera3D) {
@@ -44,10 +44,10 @@ int main() {
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
 
-    bool correct = true;
+    bool map = true;
 
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_SPACE)) correct = !correct;
+        if (IsKeyPressed(KEY_SPACE)) map = !map;
 
         { // Render to GBuffers
             BeginGBufferMode(buffers);
@@ -72,7 +72,11 @@ int main() {
 
         AddBackBuffer(presenter);
 
-        if (correct) ApplyGammaCorrection(presenter, 2.2);
+        if (map) {
+            ApplyToneMapping(presenter, TONE_MAP_REINHARD);
+        }
+
+        ApplyGammaCorrection(presenter, 2.2);
 
         // Render GBuffers to screen
         Present(presenter);

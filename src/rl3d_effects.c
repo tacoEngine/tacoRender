@@ -15,6 +15,66 @@
 #include <rlgl.h>
 #include <raymath.h>
 
+void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader) {
+    int depthLoc = GetShaderLocation(shader, "depth");
+    int invViewLoc = GetShaderLocation(shader, "invView");
+    int invProjLoc = GetShaderLocation(shader, "invProj");
+
+    SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
+    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
+    double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
+    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
+
+    SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
+    SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
+
+    rlEnableColorBlend();
+
+    BeginTextureMode(presenter.back[0]);
+
+    BeginBlendMode(BLEND_ADD_COLORS);
+
+    BeginShaderMode(shader);
+
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_ALBEDO], presenter.source.albedo);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_NORMAL], presenter.source.normal);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_HEIGHT], presenter.source.height);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_METALNESS], presenter.source.metallic);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_ROUGHNESS], presenter.source.roughness);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_EMISSION], presenter.source.emission);
+    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_OCCLUSION], presenter.source.ao);
+    SetShaderValueTexture(shader, depthLoc, presenter.source.depth);
+
+    rlSetTexture(presenter.source.albedo.id);
+    DrawScreenQuad();
+
+    EndShaderMode();
+
+    EndBlendMode();
+
+    EndTextureMode();
+
+    rlDisableColorBlend();
+}
+
+void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
+    BeginTextureMode(presenter.back[0]);
+
+    BeginShaderMode(shader);
+
+    DrawTexture(presenter.target.texture, 0, 0, WHITE);
+
+    EndShaderMode();
+
+    EndTextureMode();
+
+    BeginTextureMode(presenter.target);
+
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
+
+    EndTextureMode();
+}
+
 Skybox LoadSkybox(const char *filename) {
     return LoadSkyboxImage(LoadImage(filename));
 }
@@ -107,63 +167,14 @@ void ApplyGammaCorrection(GBufferPresenter presenter, float gamma) {
 
     SetShaderValue(gammaShader, gammaLoc, &gamma, SHADER_UNIFORM_FLOAT);
 
-    BeginTextureMode(presenter.back[0]);
-
-    BeginShaderMode(gammaShader);
-
-    DrawTexture(presenter.target.texture, 0, 0, WHITE);
-
-    EndShaderMode();
-
-    EndTextureMode();
-
-    BeginTextureMode(presenter.target);
-
-    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
-
-    EndTextureMode();
+    RunPostProcessShader(presenter, gammaShader);
 }
 
-void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader) {
-    int depthLoc = GetShaderLocation(shader, "depth");
-    int invViewLoc = GetShaderLocation(shader, "invView");
-    int invProjLoc = GetShaderLocation(shader, "invProj");
-
-    SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
-    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
-    double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
-    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
-
-    SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
-    SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
-
-    rlEnableColorBlend();
-
-    BeginTextureMode(presenter.back[0]);
-
-    BeginBlendMode(BLEND_ADD_COLORS);
-
-    BeginShaderMode(shader);
-
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_ALBEDO], presenter.source.albedo);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_NORMAL], presenter.source.normal);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_HEIGHT], presenter.source.height);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_METALNESS], presenter.source.metallic);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_ROUGHNESS], presenter.source.roughness);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_EMISSION], presenter.source.emission);
-    SetShaderValueTexture(shader, shader.locs[SHADER_LOC_MAP_OCCLUSION], presenter.source.ao);
-    SetShaderValueTexture(shader, depthLoc, presenter.source.depth);
-
-    rlSetTexture(presenter.source.albedo.id);
-    DrawScreenQuad();
-
-    EndShaderMode();
-
-    EndBlendMode();
-
-    EndTextureMode();
-
-    rlDisableColorBlend();
+void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper) {
+    switch (mapper) {
+        case TONE_MAP_REINHARD:
+            return RunPostProcessShader(presenter, GetShader(SHADER_TONE_MAP_REINHARD));
+    }
 }
 
 void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint) {
@@ -194,7 +205,7 @@ void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, flo
     Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
     SetShaderValue(pointPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
 
-    RunSingleShader(presenter, camera, pointPhong);
+    RunOverlayShader(presenter, camera, pointPhong);
 }
 
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
@@ -214,5 +225,5 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
     SetShaderValue(sunPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
 
-    RunSingleShader(presenter, camera, sunPhong);
+    RunOverlayShader(presenter, camera, sunPhong);
 }

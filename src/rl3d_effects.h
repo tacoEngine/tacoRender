@@ -21,6 +21,13 @@ typedef struct Skybox {
     Model box;
 } Skybox;
 
+typedef enum ToneMapper {
+    TONE_MAP_REINHARD
+} ToneMapper;
+
+void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader);
+void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
+
 Skybox LoadSkybox(const char *filename);
 Skybox LoadSkyboxImage(Image image);
 void DrawSkybox(Skybox skybox, Color tint);
@@ -29,8 +36,7 @@ void ShadeFlat(GBufferPresenter presenter);
 
 void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radius);
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma);
-
-void RunSingleShader(GBufferPresenter presenter, Camera camera, Shader shader);
+void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);
 
 void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint);
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint);
