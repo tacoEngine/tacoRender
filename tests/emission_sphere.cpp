@@ -63,6 +63,7 @@ int main() {
 
         ClearPresenter(presenter);
         ShadeFlat(presenter);
+
         ApplyBloom(presenter, 5, 5);
 
         // Render GBuffers to screen

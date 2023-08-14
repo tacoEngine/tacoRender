@@ -25,8 +25,11 @@ typedef enum ToneMapper {
     TONE_MAP_REINHARD
 } ToneMapper;
 
-void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader);
+void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader);
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
+
+void BeginLightingPass(GBufferPresenter presenter);
+void EndLightingPass();
 
 Skybox LoadSkybox(const char *filename);
 Skybox LoadSkyboxImage(Image image);

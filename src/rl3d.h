@@ -51,8 +51,6 @@ void Present(GBufferPresenter presenter);
 // Adds target += back[0]
 void AddBackBuffer(GBufferPresenter presenter);
 
-void SetBackbufferFilter(GBufferPresenter presenter, int filter);
-
 #ifndef NO_CONVENIENCE
 void DrawDepth(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);
 #endif

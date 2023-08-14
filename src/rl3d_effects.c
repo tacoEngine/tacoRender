@@ -15,7 +15,7 @@
 #include <rlgl.h>
 #include <raymath.h>
 
-void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader) {
+void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     int depthLoc = GetShaderLocation(shader, "depth");
     int invViewLoc = GetShaderLocation(shader, "invView");
     int invProjLoc = GetShaderLocation(shader, "invProj");
@@ -27,12 +27,6 @@ void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader) 
 
     SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
     SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
-
-    rlEnableColorBlend();
-
-    BeginTextureMode(presenter.back[0]);
-
-    BeginBlendMode(BLEND_ADD_COLORS);
 
     BeginShaderMode(shader);
 
@@ -48,13 +42,9 @@ void RunOverlayShader(GBufferPresenter presenter, Camera camera, Shader shader) 
     rlSetTexture(presenter.source.albedo.id);
     DrawScreenQuad();
 
+    // This is only here to clear the current batch
+    // That way the same shader can be used in one light pass
     EndShaderMode();
-
-    EndBlendMode();
-
-    EndTextureMode();
-
-    rlDisableColorBlend();
 }
 
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
@@ -73,6 +63,22 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
     DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 
     EndTextureMode();
+}
+
+void BeginLightingPass(GBufferPresenter presenter) {
+    rlEnableColorBlend();
+
+    BeginTextureMode(presenter.target);
+
+    BeginBlendMode(BLEND_ADD_COLORS);
+}
+
+void EndLightingPass() {
+    EndBlendMode();
+
+    EndTextureMode();
+
+    rlDisableColorBlend();
 }
 
 Skybox LoadSkybox(const char *filename) {
@@ -205,7 +211,7 @@ void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, flo
     Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
     SetShaderValue(pointPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
 
-    RunOverlayShader(presenter, camera, pointPhong);
+    RunLightShader(presenter, camera, pointPhong);
 }
 
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
@@ -225,5 +231,5 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
     SetShaderValue(sunPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
 
-    RunOverlayShader(presenter, camera, sunPhong);
+    RunLightShader(presenter, camera, sunPhong);
 }

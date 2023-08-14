@@ -28,7 +28,7 @@ int main() {
     Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, BLUE));
     Texture normal = LoadTextureFromImage(GenImageColor(1, 1, (Color) {128, 128, 255, 255}));
     Texture height = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
-    Texture metallic = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
+    Texture metallic = LoadTextureFromImage(GenImageColor(1, 1, GRAY));
     Texture roughness = LoadTextureFromImage(GenImageColor(1, 1, GRAY));
     Texture emission = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
     Texture ao = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
@@ -61,13 +61,20 @@ int main() {
             EndGBufferMode();
         }
 
-        ClearPresenter(presenter);
-
         auto time = (float) GetTime();
 
-        LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
-        LightPoint(presenter, camera, (Vector3) {2 * sinf(time), 2 * cosf(time), -2}, 2, WHITE);
-        AddBackBuffer(presenter);
+        ClearPresenter(presenter);
+
+        { // Shade scene
+            BeginLightingPass(presenter);
+
+            ClearBackground(BLACK);
+
+            LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
+            LightPoint(presenter, camera, (Vector3) {2 * sinf(time), 2 * cosf(time), -2}, 2, WHITE);
+
+            EndLightingPass();
+        }
 
         ApplyGammaCorrection(presenter, 2.2);
 

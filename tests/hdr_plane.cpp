@@ -26,7 +26,7 @@ int main() {
     Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, BLUE));
     Texture normal = LoadTextureFromImage(GenImageColor(1, 1, (Color) {128, 128, 255, 255}));
     Texture height = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
-    Texture metallic = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
+    Texture metallic = LoadTextureFromImage(GenImageColor(1, 1, GRAY));
     Texture roughness = LoadTextureFromImage(GenImageColor(1, 1, GRAY));
     Texture emission = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
     Texture ao = LoadTextureFromImage(GenImageColor(1, 1, WHITE));

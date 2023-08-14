@@ -106,6 +106,7 @@ const char *rl3d_gbuf_fs = "#version 330 core\n"
 
                            "void main() {\n"
                            "    albedo    = texture(albedoMap, fragTexCoord).rgba;\n"
+                           "    if (albedo.a == 0) discard;"
                            "    normal    = GetNormalFromMap();\n"
                            "    height    = texture(heightMap, fragTexCoord).rgb;\n"
                            "    metallic  = texture(metallicMap, fragTexCoord).rgb;\n"
@@ -218,6 +219,7 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             "in vec2 fragTexCoord;\n"
                             "out vec4 finalColor;\n"
                             "uniform sampler2D albedoMap;\n"
+                            "uniform sampler2D specularMap;\n"
                             "uniform sampler2D normalMap;\n"
                             "uniform sampler2D depth;\n"
                             "uniform vec3 camPos;\n"
@@ -231,21 +233,24 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             WORLD_POS_FROM_DEPTH
                             "void main() {\n"
                             "    finalColor = vec4(0, 0, 0, 0);"
-
-                            "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
-                            "    vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
                             "    float dist = texture(depth, fragTexCoord).r;\n"
+                            "    if (dist == 1) discard;"
                             "    vec3 worldPos = WorldPosFromDepth(dist);\n"
-                            "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
                             "    float lightDistance = distance(pos, worldPos);\n"
                             "    if (lightDistance * lightDistance > radius) return;\n"
                             "    vec3 lightDir = normalize(pos - worldPos);\n"
 
+                            "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
+                            "    vec3 normal = texture(normalMap, fragTexCoord).rgb;\n"
+                            // This exponent-from-0-to-150 is what Source™ does
+                            "    float exponent = 150 * texture(specularMap, fragTexCoord).r;"
+                            "    vec3 viewDir = normalize(camPos - worldPos);\n"
+
                             "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                             "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 64);\n"
+                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), exponent);\n"
 
                             "    float att = 1.0 / (lightDistance * lightDistance);\n"
                             "    finalColor = intensity * att * (diff + specular) * color * albedo;\n"
@@ -255,6 +260,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "in vec2 fragTexCoord;\n"
                           "out vec4 finalColor;\n"
                           "uniform sampler2D albedoMap;\n"
+                          "uniform sampler2D specularMap;\n"
                           "uniform sampler2D normalMap;\n"
                           "uniform sampler2D depth;\n"
                           "uniform vec3 camPos;\n"
@@ -268,9 +274,12 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "void main() {\n"
                           "    finalColor = vec4(0, 0, 0, 0);"
 
+                          "    float dist = texture(depth, fragTexCoord).r;\n"
+                          "    if (dist == 1) discard;"
                           "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
                           "    vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
-                          "    float dist = texture(depth, fragTexCoord).r;\n"
+                          // This exponent-from-0-to-150 is what Source™ does
+                          "    float exponent = 150 * texture(specularMap, fragTexCoord).r;"
                           "    vec3 worldPos = WorldPosFromDepth(dist);\n"
                           "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
@@ -279,7 +288,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                           "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 64);\n"
+                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), exponent);\n"
 
                           "    finalColor = intensity * (diff + specular) * color * albedo;\n"
                           "}";
@@ -328,11 +337,13 @@ void LoadShaders() {
         flipYShader = LoadShaderFromMemory(rl3d_flip_vs, NULL);
         pointShader = LoadShaderFromMemory(NULL, rl3d_point_fs);
         pointShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(pointShader, "albedoMap");
+        pointShader.locs[SHADER_LOC_MAP_SPECULAR] = GetShaderLocation(pointShader, "specularMap");
         pointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(pointShader, "normalMap");
         pointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(pointShader, "camPos");
 
         sunShader = LoadShaderFromMemory(NULL, rl3d_sun_fs);
         sunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(sunShader, "albedoMap");
+        sunShader.locs[SHADER_LOC_MAP_SPECULAR] = GetShaderLocation(sunShader, "specularMap");
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 

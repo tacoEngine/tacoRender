@@ -89,10 +89,10 @@ RenderTexture LoadHDRRenderTexture(int width, int height) {
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
 
-        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1);
+        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, 1);
         target.texture.width = width;
         target.texture.height = height;
-        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R16G16B16A16;
+        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R16G16B16;
         target.texture.mipmaps = 1;
 
         target.depth.id = rlLoadTextureDepth(width, height, true);
@@ -116,16 +116,11 @@ RenderTexture LoadHDRRenderTexture(int width, int height) {
 
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
-    // Todo: Make the presenter target use an HDR color texture
     presenter.target = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
-    // note: back buffer doesn't need to be hdr, but
     // Todo: Make back buffer depthless
     presenter.back[0] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
     presenter.back[1] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
     presenter.source = buffers;
-
-    SetTextureFilter(presenter.back[0].texture, TEXTURE_FILTER_BILINEAR);
-    SetTextureFilter(presenter.back[1].texture, TEXTURE_FILTER_BILINEAR);
 
     return presenter;
 }
@@ -186,11 +181,6 @@ void AddBackBuffer(GBufferPresenter presenter) {
     EndTextureMode();
 
     rlDisableColorBlend();
-}
-
-void SetBackbufferFilter(GBufferPresenter presenter, int filter) {
-    SetTextureFilter(presenter.back[0].texture, filter);
-    SetTextureFilter(presenter.back[1].texture, filter);
 }
 
 #ifndef NO_CONVENIENCE
