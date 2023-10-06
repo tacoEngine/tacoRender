@@ -41,7 +41,6 @@ GBuffers LoadGBuffers(int width, int height) {
 
         target.albedo = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
         target.normal = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32);
-        target.height = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.metallic = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.roughness = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.emission = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
@@ -61,11 +60,10 @@ GBuffers LoadGBuffers(int width, int height) {
         // Attach color texture and depth texture to FBO
         rlFramebufferAttach(target.id, target.albedo.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
         rlFramebufferAttach(target.id, target.normal.id, RL_ATTACHMENT_COLOR_CHANNEL1, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.height.id, RL_ATTACHMENT_COLOR_CHANNEL2, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.metallic.id, RL_ATTACHMENT_COLOR_CHANNEL3, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.roughness.id, RL_ATTACHMENT_COLOR_CHANNEL4, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.emission.id, RL_ATTACHMENT_COLOR_CHANNEL5, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.ao.id, RL_ATTACHMENT_COLOR_CHANNEL6, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.metallic.id, RL_ATTACHMENT_COLOR_CHANNEL2, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.roughness.id, RL_ATTACHMENT_COLOR_CHANNEL3, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.emission.id, RL_ATTACHMENT_COLOR_CHANNEL4, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.ao.id, RL_ATTACHMENT_COLOR_CHANNEL5, RL_ATTACHMENT_TEXTURE2D, 0);
         rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
 
         // Check if fbo is complete with attachments (valid)

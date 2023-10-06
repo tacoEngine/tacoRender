@@ -19,9 +19,8 @@ extern "C" {
 typedef struct GBuffers {
     unsigned int id;        // OpenGL framebuffer object id
     Texture albedo;         // Albedo buffer attachment texture
-    Texture normal;         // Normal buffer attachment texture
-    Texture height;         // Height buffer attachment texture
     Texture metallic;       // Metallic buffer attachment texture
+    Texture normal;         // Normal buffer attachment texture
     Texture roughness;      // Roughness buffer attachment texture
     Texture emission;       // Emission buffer attachment texture
     Texture ao;             // Ambient occlusion buffer attachment texture

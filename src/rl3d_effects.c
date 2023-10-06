@@ -14,128 +14,8 @@
 #include <rlgl.h>
 #include <raymath.h>
 
-#include <stddef.h>
-
-void DrawMeshWithGBuffers(GBufferPresenter presenter, Mesh mesh, Shader shader) {
-    // Bind shader program
-    rlEnableShader(shader.id);
-
-    // Send required data to shader (matrices, values)
-    //-----------------------------------------------------
-
-    // Get a copy of current matrices to work with,
-    // just in case stereo render is required, and we need to modify them
-    // NOTE: At this point the modelview matrix just contains the view matrix (camera)
-    // That's because BeginMode3D() sets it and there is no model-drawing function
-    // that modifies it, all use rlPushMatrix() and rlPopMatrix()
-    Matrix matModel = MatrixIdentity();
-    Matrix matView = rlGetMatrixModelview();
-    Matrix matProjection = rlGetMatrixProjection();
-
-    // Upload view and projection matrices (if locations available)
-    if (shader.locs[SHADER_LOC_MATRIX_VIEW] != -1) rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_VIEW], matView);
-    if (shader.locs[SHADER_LOC_MATRIX_PROJECTION] != -1)
-        rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_PROJECTION], matProjection);
-
-    // Model transformation matrix is sent to shader uniform location: SHADER_LOC_MATRIX_MODEL
-    if (shader.locs[SHADER_LOC_MATRIX_MODEL] != -1)
-        rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_MODEL], MatrixIdentity());
-
-    // Upload model normal matrix (if locations available)
-    if (shader.locs[SHADER_LOC_MATRIX_NORMAL] != -1)
-        rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_NORMAL], MatrixTranspose(MatrixInvert(matModel)));
-    //-----------------------------------------------------
-
-#define GBUFFER_TEXTURE_COUNT 8
-    Texture textures[GBUFFER_TEXTURE_COUNT] = {
-            presenter.source.albedo,
-            presenter.source.normal,
-            presenter.source.height,
-            presenter.source.metallic,
-            presenter.source.roughness,
-            presenter.source.emission,
-            presenter.source.ao,
-            presenter.source.depth,
-    };
-
-    int locs[GBUFFER_TEXTURE_COUNT] = {
-            shader.locs[SHADER_LOC_MAP_ALBEDO],
-            shader.locs[SHADER_LOC_MAP_NORMAL],
-            shader.locs[SHADER_LOC_MAP_HEIGHT],
-            shader.locs[SHADER_LOC_MAP_METALNESS],
-            shader.locs[SHADER_LOC_MAP_ROUGHNESS],
-            shader.locs[SHADER_LOC_MAP_EMISSION],
-            shader.locs[SHADER_LOC_MAP_OCCLUSION],
-            GetShaderLocation(shader, "depth"),
-    };
-
-    // Bind active texture maps (if available)
-    for (int i = 0; i < GBUFFER_TEXTURE_COUNT; i++) {
-        if (textures[i].id > 0) {
-            // Select current shader texture slot
-            rlActiveTextureSlot(i);
-
-            // Enable texture for active slot
-            // once we have cubemaps, use rlEnableTextureCubemap();
-            rlEnableTexture(textures[i].id);
-            rlSetUniform(locs[i], &i, SHADER_UNIFORM_INT, 1);
-        }
-    }
-
-    rlEnableVertexArray(mesh.vaoId);
-
-    // WARNING: Disable vertex attribute color input if mesh can not provide that data (despite location being enabled in shader)
-    if (mesh.vboId[3] == 0) rlDisableVertexAttribute(shader.locs[SHADER_LOC_VERTEX_COLOR]);
-
-    int eyeCount = 1;
-    if (rlIsStereoRenderEnabled()) eyeCount = 2;
-
-    for (int eye = 0; eye < eyeCount; eye++) {
-        // Calculate model-view-projection matrix (MVP)
-        Matrix matModelViewProjection;
-        if (eyeCount == 1) matModelViewProjection = MatrixMultiply(matView, matProjection);
-        else {
-            // Setup current eye viewport (half screen width)
-            rlViewport(eye * rlGetFramebufferWidth() / 2, 0, rlGetFramebufferWidth() / 2, rlGetFramebufferHeight());
-            matModelViewProjection = MatrixMultiply(MatrixMultiply(matView, rlGetMatrixViewOffsetStereo(eye)),
-                                                    rlGetMatrixProjectionStereo(eye));
-        }
-
-        // Send combined model-view-projection matrix to shader
-        rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_MVP], matModelViewProjection);
-
-        // Draw mesh
-        if (mesh.indices != NULL) rlDrawVertexArrayElements(0, mesh.triangleCount * 3, 0);
-        else rlDrawVertexArray(0, mesh.vertexCount);
-    }
-
-    // Unbind all bound texture maps
-    for (int i = 0; i < GBUFFER_TEXTURE_COUNT; i++) {
-        if (textures[i].id > 0) {
-            // Select current shader texture slot
-            rlActiveTextureSlot(i);
-
-            // Disable texture for active slot
-            // once we have cubemaps, use rlDisableTextureCubemap();
-            rlDisableTexture();
-        }
-    }
-
-    // Disable all possible vertex array objects (or VBOs)
-    rlDisableVertexArray();
-    rlDisableVertexBuffer();
-    rlDisableVertexBufferElement();
-
-    // Disable shader program
-    rlDisableShader();
-
-    // Restore rlgl internal modelview and projection matrices
-    rlSetMatrixModelview(matView);
-    rlSetMatrixProjection(matProjection);
-}
-
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
-    static Mesh plane = {0};
+    static Model plane = {0};
     Camera topdown = (Camera) {
             (Vector3) {0, 1, 0},
             (Vector3) {0, 0, 0},
@@ -143,8 +23,8 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
             1,
             CAMERA_ORTHOGRAPHIC
     };
-    if (plane.vboId == 0) {
-        plane = GenMeshPlane(1, 1, 1, 1);
+    if (plane.meshes == 0) {
+        plane = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
     }
 
     int invViewLoc = GetShaderLocation(shader, "invView");
@@ -158,9 +38,21 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
     SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
 
+    plane.materials[0].shader = shader;
+
+    plane.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = presenter.source.albedo;
+    plane.materials[0].maps[MATERIAL_MAP_METALNESS].texture = presenter.source.metallic;
+    plane.materials[0].maps[MATERIAL_MAP_NORMAL].texture = presenter.source.normal;
+    plane.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = presenter.source.roughness;
+    plane.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = presenter.source.ao;
+    plane.materials[0].maps[MATERIAL_MAP_EMISSION].texture = presenter.source.emission;
+    plane.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = presenter.source.depth;
+
+    float aspect = (float) GetScreenWidth() / (float) GetScreenHeight();
+
     BeginMode3D(topdown);
 
-    DrawMeshWithGBuffers(presenter, plane, shader);
+    DrawModelEx(plane, (Vector3){0,0,0}, (Vector3){0,0,0}, 0, (Vector3){aspect,1,1}, WHITE);
 
     EndMode3D();
 }

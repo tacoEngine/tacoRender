@@ -75,7 +75,6 @@ const char *rl3d_gbuf_fs = "#version 330 core\n"
                            "in vec2 fragTexCoord2;\n"
                            "layout (location = 0) out vec4 albedo;\n"
                            "layout (location = 1) out vec3 normal;\n"
-                           "layout (location = 2) out float height;\n"
                            "layout (location = 3) out float metallic;\n"
                            "layout (location = 4) out float roughness;\n"
                            "layout (location = 5) out vec3 emission;\n"
@@ -108,7 +107,6 @@ const char *rl3d_gbuf_fs = "#version 330 core\n"
                            "    albedo    = texture(albedoMap, fragTexCoord).rgba;\n"
                            "    if (albedo.a == 0) discard;"
                            "    normal    = GetNormalFromMap();\n"
-                           "    height    = texture(heightMap, fragTexCoord).r;\n"
                            "    metallic  = texture(metallicMap, fragTexCoord).r;\n"
                            "    roughness = texture(roughnessMap, fragTexCoord).r;\n"
                            "    emission  = texture(emissionMap, fragTexCoord).rgb;\n"
@@ -219,9 +217,7 @@ const char *rl3d_point_fs = "#version 330 core\n"
                             "in vec2 fragTexCoord;\n"
                             "out vec4 finalColor;\n"
                             "uniform sampler2D albedoMap;\n"
-                            "uniform sampler2D specularMap;\n"
                             "uniform sampler2D normalMap;\n"
-                            "uniform sampler2D roughnessMap;\n"
                             "uniform sampler2D depth;\n"
                             "uniform vec3 camPos;\n"
                             "uniform mat4 invView;\n"
@@ -244,15 +240,12 @@ const char *rl3d_point_fs = "#version 330 core\n"
 
                             "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
                             "    vec3 normal = texture(normalMap, fragTexCoord).rgb;\n"
-                            // This exponent-from-0-to-150 is what Source™ does
-                            "    float exponent = 150 * texture(specularMap, fragTexCoord).r;"
-                            "    float roughness = texture(roughnessMap, fragTexCoord).r;"
                             "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
                             "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                             "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), exponent) * roughness;\n"
+                            "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
                             "    float att = 1.0 / (lightDistance * lightDistance);\n"
                             "    finalColor = intensity * att * (diff + specular) * color * albedo;\n"
@@ -262,9 +255,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "in vec2 fragTexCoord;\n"
                           "out vec4 finalColor;\n"
                           "uniform sampler2D albedoMap;\n"
-                          "uniform sampler2D specularMap;\n"
                           "uniform sampler2D normalMap;\n"
-                          "uniform sampler2D roughnessMap;\n"
                           "uniform sampler2D depth;\n"
                           "uniform vec3 camPos;\n"
                           "uniform mat4 invView;\n"
@@ -281,9 +272,6 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "    if (dist == 1) discard;"
                           "    vec4 albedo = texture(albedoMap, fragTexCoord);\n"
                           "    vec3 normal = texture(normalMap, fragTexCoord).xyz;\n"
-                          // This exponent-from-0-to-150 is what Source™ does
-                          "    float exponent = 150 * texture(specularMap, fragTexCoord).r;"
-                          "    float roughness = texture(roughnessMap, fragTexCoord).r;"
                           "    vec3 worldPos = WorldPosFromDepth(dist);\n"
                           "    vec3 viewDir = normalize(camPos - worldPos);\n"
 
@@ -292,7 +280,7 @@ const char *rl3d_sun_fs = "#version 330 core\n"
                           "    float diff = max(dot(lightDir, normal), 0.0);\n"
 
                           "    vec3 halfwayDir = normalize(lightDir + viewDir);\n"
-                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), exponent);\n"
+                          "    float specular = pow(max(dot(normal, halfwayDir), 0.0), 32);\n"
 
                           "    finalColor = intensity * (diff + specular) * color * albedo;\n"
                           "}";
@@ -341,16 +329,14 @@ void LoadShaders() {
         flipYShader = LoadShaderFromMemory(rl3d_flip_vs, NULL);
         pointShader = LoadShaderFromMemory(NULL, rl3d_point_fs);
         pointShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(pointShader, "albedoMap");
-        pointShader.locs[SHADER_LOC_MAP_SPECULAR] = GetShaderLocation(pointShader, "specularMap");
         pointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(pointShader, "normalMap");
-        pointShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(pointShader, "roughnessMap");
+        pointShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(pointShader, "depth");
         pointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(pointShader, "camPos");
 
         sunShader = LoadShaderFromMemory(NULL, rl3d_sun_fs);
         sunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(sunShader, "albedoMap");
-        sunShader.locs[SHADER_LOC_MAP_SPECULAR] = GetShaderLocation(sunShader, "specularMap");
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
-        sunShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(sunShader, "roughnessMap");
+        sunShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(sunShader, "depth");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 
         gammaShader = LoadShaderFromMemory(NULL, rl3d_gamma);

@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(raylib)
 
-target_compile_definitions(raylib PUBLIC "RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS=16")
-
 add_library(rl3d
         src/rl3d.c
         src/rl3d.h
@@ -33,6 +31,3 @@ target_link_libraries(rl3d_lit_sphere rl3d)
 
 add_executable(rl3d_hdr_plane tests/hdr_plane.cpp)
 target_link_libraries(rl3d_hdr_plane rl3d)
-
-add_executable(rl3d_happy_birthday tests/happy_birthday.cpp)
-target_link_libraries(rl3d_happy_birthday rl3d)
