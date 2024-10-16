@@ -71,7 +71,7 @@ int main() {
             ClearBackground(BLACK);
 
             LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW);
-            LightPoint(presenter, camera, (Vector3) {2 * sinf(time), 2 * cosf(time), -2}, 2, WHITE);
+            LightPoint(presenter, camera, (Vector3) {2 * sinf(time), 2 * cosf(time), -2}, 2, 2 * 510, WHITE);
 
             EndLightingPass();
         }

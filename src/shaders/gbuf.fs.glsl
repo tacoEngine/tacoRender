@@ -9,10 +9,10 @@ in vec2 fragTexCoord2;
 
 layout (location = 0) out vec4 albedo;
 layout (location = 1) out vec3 normal;
-layout (location = 3) out float metallic;
-layout (location = 4) out float roughness;
-layout (location = 5) out vec3 emission;
-layout (location = 6) out float ao;
+layout (location = 2) out float metallic;
+layout (location = 3) out float roughness;
+layout (location = 4) out vec3 emission;
+layout (location = 5) out float ao;
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;

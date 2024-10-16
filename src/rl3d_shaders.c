@@ -108,15 +108,20 @@ void LoadShaders() {
         skyboxShader.locs[SHADER_LOC_MAP_CUBEMAP] = GetShaderLocation(skyboxShader, "skybox");
 
         flipYShader = LoadShaderFromMemory(rl3d_flip_vs, NULL);
+
         pointShader = LoadShaderFromMemory(NULL, rl3d_point_fs);
         pointShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(pointShader, "albedoMap");
         pointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(pointShader, "normalMap");
+        pointShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(pointShader, "metallicMap");
+        pointShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(pointShader, "roughnessMap");
         pointShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(pointShader, "depth");
         pointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(pointShader, "camPos");
 
         sunShader = LoadShaderFromMemory(NULL, rl3d_sun_fs);
         sunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(sunShader, "albedoMap");
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
+        sunShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(sunShader, "metallicMap");
+        sunShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(sunShader, "roughnessMap");
         sunShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(sunShader, "depth");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 

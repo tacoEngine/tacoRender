@@ -41,8 +41,8 @@ GBuffers LoadGBuffers(int width, int height) {
 
         target.albedo = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
         target.normal = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32);
-        target.metallic = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
-        target.roughness = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+        target.metallic = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
+        target.roughness = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
         target.emission = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.ao = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
 
@@ -55,7 +55,7 @@ GBuffers LoadGBuffers(int width, int height) {
         target.depth.format = 19;       //DEPTH_COMPONENT_24BIT?
         target.depth.mipmaps = 1;
 
-        rlActiveDrawBuffers(7);
+        rlActiveDrawBuffers(6);
 
         // Attach color texture and depth texture to FBO
         rlFramebufferAttach(target.id, target.albedo.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);

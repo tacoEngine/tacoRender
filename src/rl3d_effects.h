@@ -41,7 +41,7 @@ void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radiu
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma);
 void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);
 
-void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint);
+void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius, Color tint);
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint);
 
 #ifdef __cplusplus

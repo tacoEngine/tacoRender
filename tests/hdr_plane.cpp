@@ -65,10 +65,10 @@ int main() {
 
         ClearPresenter(presenter);
 
-        LightPoint(presenter, camera, (Vector3) {-3, 0.5, 0}, 1, DARKGRAY);
-        LightPoint(presenter, camera, (Vector3) {-1, 0.5, 0}, 1, GRAY);
-        LightPoint(presenter, camera, (Vector3) { 3, 0.5, 0}, 1, LIGHTGRAY);
-        LightPoint(presenter, camera, (Vector3) { 1, 0.5, 0}, 1, WHITE);
+        LightPoint(presenter, camera, (Vector3) {-3, 0.5, 0}, 1, 510, DARKGRAY);
+        LightPoint(presenter, camera, (Vector3) {-1, 0.5, 0}, 1, 510, GRAY);
+        LightPoint(presenter, camera, (Vector3) { 3, 0.5, 0}, 1, 510, LIGHTGRAY);
+        LightPoint(presenter, camera, (Vector3) { 1, 0.5, 0}, 1, 510, WHITE);
 
         AddBackBuffer(presenter);
 

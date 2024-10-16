@@ -193,53 +193,41 @@ void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper) {
     }
 }
 
-void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, Color tint) {
-    static Shader pointPhong = {0};
+void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius, Color tint) {
+    static Shader point = {0};
     static int posLoc, intensityLoc, radiusLoc, colorLoc;
-    if (pointPhong.id == 0) {
-        pointPhong = GetShader(SHADER_POINT);
-        posLoc = GetShaderLocation(pointPhong, "pos");
-        intensityLoc = GetShaderLocation(pointPhong, "intensity");
-        radiusLoc = GetShaderLocation(pointPhong, "radius");
-        colorLoc = GetShaderLocation(pointPhong, "color");
+    if (point.id == 0) {
+        point = GetShader(SHADER_POINT);
+        posLoc = GetShaderLocation(point, "pos");
+        intensityLoc = GetShaderLocation(point, "intensity");
+        radiusLoc = GetShaderLocation(point, "radius");
+        colorLoc = GetShaderLocation(point, "color");
     }
-    // finalColor = intensity * (1 / (lightDistance * lightDistance)) * (diff * color + specular) * color;
-    // so the worst case (brightest point) is
-    // finalColor = intensity * (1 / (lightDistance * lightDistance)) * (1 * vec4(1) + 1) * vec4(1);
-    // finalColor = intensity * (1 / (lightDistance * lightDistance)) * vec4(2);
-    // this becomes vec4(vec3(0), 1) when it goes below 1/255 for 32bpp rgba, so bc r, g, b and a are equal
-    // 1/255 = intensity * (1 / (lightDistance * lightDistance)) * 2
-    // 1/510 = intensity * (1 / (lightDistance * lightDistance))
-    // 1/(510 * intensity) = 1 / (lightDistance * lightDistance)
-    // 510 * intensity = lightDistance * lightDistance
-    // in the shader we then compare with lightDistance * lightDistance,
-    // so we don't have to take the square root in here every time
-    float radius = 510 * intensity;
-    SetShaderValue(pointPhong, posLoc, &position, SHADER_UNIFORM_VEC3);
-    SetShaderValue(pointPhong, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(pointPhong, radiusLoc, &radius, SHADER_UNIFORM_FLOAT);
-    Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
-    SetShaderValue(pointPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
+    SetShaderValue(point, posLoc, &position, SHADER_UNIFORM_VEC3);
+    SetShaderValue(point, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(point, radiusLoc, &radius, SHADER_UNIFORM_FLOAT);
+    Vector3 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f};
+    SetShaderValue(point, colorLoc, &color, SHADER_UNIFORM_VEC3);
 
-    RunLightShader(presenter, camera, pointPhong);
+    RunLightShader(presenter, camera, point);
 }
 
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint) {
-    static Shader sunPhong = {0};
+    static Shader sun = {0};
     static int dirLoc, intensityLoc, colorLoc;
-    if (sunPhong.id == 0) {
-        sunPhong = GetShader(SHADER_SUN);
-        dirLoc = GetShaderLocation(sunPhong, "direction");
-        intensityLoc = GetShaderLocation(sunPhong, "intensity");
-        colorLoc = GetShaderLocation(sunPhong, "color");
+    if (sun.id == 0) {
+        sun = GetShader(SHADER_SUN);
+        dirLoc = GetShaderLocation(sun, "direction");
+        intensityLoc = GetShaderLocation(sun, "intensity");
+        colorLoc = GetShaderLocation(sun, "color");
     }
 
     direction = Vector3Normalize(direction);
 
-    SetShaderValue(sunPhong, dirLoc, &direction, SHADER_UNIFORM_VEC3);
-    SetShaderValue(sunPhong, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
-    Vector4 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f, (float) tint.a / 255.f};
-    SetShaderValue(sunPhong, colorLoc, &color, SHADER_UNIFORM_VEC4);
+    SetShaderValue(sun, dirLoc, &direction, SHADER_UNIFORM_VEC3);
+    SetShaderValue(sun, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
+    Vector3 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f};
+    SetShaderValue(sun, colorLoc, &color, SHADER_UNIFORM_VEC3);
 
-    RunLightShader(presenter, camera, sunPhong);
+    RunLightShader(presenter, camera, sun);
 }
