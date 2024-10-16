@@ -31,3 +31,6 @@ target_link_libraries(rl3d_lit_sphere rl3d)
 
 add_executable(rl3d_hdr_plane tests/hdr_plane.cpp)
 target_link_libraries(rl3d_hdr_plane rl3d)
+
+add_executable(rl3d_pbr_sphere tests/pbr_sphere.cpp)
+target_link_libraries(rl3d_pbr_sphere rl3d)
