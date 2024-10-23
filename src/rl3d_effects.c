@@ -14,7 +14,7 @@
 #include <rlgl.h>
 #include <raymath.h>
 
-void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
+void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, TextureCubemap prefilter, TextureCubemap irradiance, Texture brdf) {
     static Model plane = {0};
     Camera topdown = (Camera) {
             (Vector3) {0, 1, 0},
@@ -23,7 +23,7 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
             1,
             CAMERA_ORTHOGRAPHIC
     };
-    if (plane.meshes == 0) {
+    if (plane.meshes == nullptr) {
         plane = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
     }
 
@@ -47,6 +47,9 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     plane.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = presenter.source.ao;
     plane.materials[0].maps[MATERIAL_MAP_EMISSION].texture = presenter.source.emission;
     plane.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = presenter.source.depth;
+    plane.materials[0].maps[MATERIAL_MAP_PREFILTER].texture = prefilter;
+    plane.materials[0].maps[MATERIAL_MAP_IRRADIANCE].texture = irradiance;
+    plane.materials[0].maps[MATERIAL_MAP_BRDF].texture = brdf;
 
     float aspect = (float) GetScreenWidth() / (float) GetScreenHeight();
 
@@ -55,6 +58,10 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
     DrawModelEx(plane, (Vector3){0,0,0}, (Vector3){0,0,0}, 0, (Vector3){aspect,1,1}, WHITE);
 
     EndMode3D();
+}
+
+void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
+    RunLightShaderEx(presenter, camera, shader, (Texture){0}, (Texture){0}, (Texture){0});
 }
 
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
@@ -230,4 +237,20 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     SetShaderValue(sun, colorLoc, &color, SHADER_UNIFORM_VEC3);
 
     RunLightShader(presenter, camera, sun);
+}
+
+const char rl3d_brdf_lut[] = {
+#embed "assets/brdf.png"
+    , '\0'
+};
+
+void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance, TextureCubemap irradiance) {
+    static Shader ibl = {0};
+    static Texture brdf;
+    if (ibl.id == 0) {
+        ibl = GetShader(SHADER_IBL);
+        brdf = LoadTextureFromImage(LoadImageFromMemory(".png", rl3d_brdf_lut, sizeof(rl3d_brdf_lut)));
+    }
+
+    RunLightShaderEx(presenter, camera, ibl, radiance, irradiance, brdf);
 }

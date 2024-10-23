@@ -26,6 +26,7 @@ typedef enum ToneMapper {
 } ToneMapper;
 
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader);
+void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, TextureCubemap prefilter, TextureCubemap irradiance, Texture brdf);
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
 
 void BeginLightingPass(GBufferPresenter presenter);
@@ -43,6 +44,7 @@ void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);
 
 void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius, Color tint);
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint);
+void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance, TextureCubemap irradiance);
 
 #ifdef __cplusplus
 }
