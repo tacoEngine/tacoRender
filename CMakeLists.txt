@@ -42,3 +42,6 @@ target_link_libraries(rl3d_pbr_sphere rl3d)
 
 add_executable(rl3d_ibl_spheres tests/ibl_spheres.cpp)
 target_link_libraries(rl3d_ibl_spheres rl3d)
+
+add_executable(rl3d_cubemap_gen tests/cubemap_generation.cpp)
+target_link_libraries(rl3d_cubemap_gen rl3d)
