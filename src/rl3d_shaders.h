@@ -28,6 +28,8 @@ typedef enum EmbeddedShader {
     SHADER_IBL,
     SHADER_GAMMA,
     SHADER_TONE_MAP_REINHARD,
+    SHADER_IRRADIANCE,
+    SHADER_PREFILTER
 } EmbeddedShader;
 
 void LoadShaders();

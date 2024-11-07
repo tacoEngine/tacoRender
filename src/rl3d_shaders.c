@@ -23,6 +23,8 @@ static Shader sunShader = {0};
 static Shader iblShader = {0};
 static Shader gammaShader = {0};
 static Shader toneMapReinhardShader = {0};
+static Shader irradianceShader = {0};
+static Shader prefilterShader = {0};
 
 const char rl3d_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
@@ -94,6 +96,21 @@ const char rl3d_tone_map_reinhard[] = {
     , '\0'
 };
 
+const char rl3d_cubemap_vs[] = {
+#embed "shaders/cubemap.vs.glsl"
+    , '\0'
+};
+
+const char rl3d_irradiance_fs[] = {
+#embed "shaders/irradiance.fs.glsl"
+    , '\0'
+};
+
+const char rl3d_prefilter_fs[] = {
+#embed "shaders/prefilter.fs.glsl"
+    , '\0'
+};
+
 void LoadShaders() {
     if (gBufferShader.id == 0) {
         gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
@@ -145,6 +162,10 @@ void LoadShaders() {
         gammaShader = LoadShaderFromMemory(NULL, rl3d_gamma_fs);
 
         toneMapReinhardShader = LoadShaderFromMemory(NULL, rl3d_tone_map_reinhard);
+
+        irradianceShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_irradiance_fs);
+
+        prefilterShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_prefilter_fs);
     }
 }
 
@@ -188,6 +209,10 @@ Shader GetShader(EmbeddedShader shade) {
         return gammaShader;
     case SHADER_TONE_MAP_REINHARD:
         return toneMapReinhardShader;
+    case SHADER_IRRADIANCE:
+        return irradianceShader;
+    case SHADER_PREFILTER:
+        return prefilterShader;
     }
     return LoadMaterialDefault().shader;
 }

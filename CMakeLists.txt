@@ -16,6 +16,8 @@ add_library(rl3d
         src/rl3d_shaders.h
         src/rl3d_effects.c
         src/rl3d_effects.h
+        src/rl3d_generators.c
+        src/rl3d_generators.h
 )
 target_link_libraries(rl3d raylib)
 target_include_directories(rl3d PUBLIC src)
