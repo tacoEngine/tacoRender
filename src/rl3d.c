@@ -12,9 +12,11 @@
 
 #include <rlgl.h>
 #include <stddef.h>
+#include <external/glad.h>
 
 void Init3D() {
     LoadShaders();
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 void Uninit3D() {
@@ -34,7 +36,7 @@ Texture LoadEmptyTexture(int width, int height, PixelFormat format) {
 GBuffers LoadGBuffers(int width, int height) {
     GBuffers target = {0};
 
-    target.id = rlLoadFramebuffer(width, height);   // Load an empty framebuffer
+    target.id = rlLoadFramebuffer();   // Load an empty framebuffer
 
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
@@ -82,7 +84,7 @@ GBuffers LoadGBuffers(int width, int height) {
 RenderTexture LoadHDRRenderTexture(int width, int height) {
     RenderTexture2D target = {0};
 
-    target.id = rlLoadFramebuffer(width, height);
+    target.id = rlLoadFramebuffer();
 
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
