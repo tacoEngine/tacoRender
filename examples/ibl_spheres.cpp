@@ -49,8 +49,8 @@ int main() {
         maps[MATERIAL_MAP_OCCLUSION].texture = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
     }
 
-    TextureCubemap radiance = LoadTextureCubemap(LoadImage("tests/assets/ibl/radiance.dds"), CUBEMAP_LAYOUT_AUTO_DETECT);
-    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("tests/assets/ibl/irradiance.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap radiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/radiance.dds"), CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/irradiance.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);

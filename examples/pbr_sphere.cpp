@@ -25,13 +25,13 @@ int main() {
             }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
     };
 
-    Texture albedo = LoadTexture("tests/assets/texture/albedo.png");
-    Texture normal = LoadTexture("tests/assets/texture/normals.png");
-    Texture height = LoadTexture("tests/assets/texture/height.png");
-    Texture metallic = LoadTexture("tests/assets/texture/metallic.png");
-    Texture roughness = LoadTexture("tests/assets/texture/roughness.png");
+    Texture albedo = LoadTexture("examples/assets/texture/albedo.png");
+    Texture normal = LoadTexture("examples/assets/texture/normals.png");
+    Texture height = LoadTexture("examples/assets/texture/height.png");
+    Texture metallic = LoadTexture("examples/assets/texture/metallic.png");
+    Texture roughness = LoadTexture("examples/assets/texture/roughness.png");
     Texture emission = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
-    Texture ao = LoadTexture("tests/assets/texture/ao.png");
+    Texture ao = LoadTexture("examples/assets/texture/ao.png");
 
     Model sphere = LoadModelFromMesh(GenMeshSphere(1, 50, 50));
     sphere.materials[0].shader = GetGBufferShader();

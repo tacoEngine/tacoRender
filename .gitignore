@@ -42,4 +42,4 @@ cmake-build-*/
 build/
 src_old/
 
-tests/happy_birthday.cpp
+examples/happy_birthday.cpp

@@ -52,7 +52,7 @@ int main() {
         maps[MATERIAL_MAP_OCCLUSION].texture = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
     }
 
-    TextureCubemap env = LoadTextureCubemap(LoadImage("tests/assets/ibl/skybox.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap env = LoadTextureCubemap(LoadImage("examples/assets/ibl/skybox.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
 
     TextureCubemap radiance = PrefilterCubemap(env);
     TextureCubemap irradiance = IrradianceCubemap(env);

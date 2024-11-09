@@ -22,26 +22,26 @@ add_library(rl3d
 target_link_libraries(rl3d raylib)
 target_include_directories(rl3d PUBLIC src)
 
-add_executable(rl3d_gbuffer_sphere tests/gbuffer_sphere.cpp)
+add_executable(rl3d_gbuffer_sphere examples/gbuffer_sphere.cpp)
 target_link_libraries(rl3d_gbuffer_sphere rl3d)
 
-add_executable(rl3d_emission_sphere tests/emission_sphere.cpp)
+add_executable(rl3d_emission_sphere examples/emission_sphere.cpp)
 target_link_libraries(rl3d_emission_sphere rl3d)
 
-add_executable(rl3d_skybox tests/skybox.cpp)
+add_executable(rl3d_skybox examples/skybox.cpp)
 target_link_libraries(rl3d_skybox rl3d)
 
-add_executable(rl3d_lit_sphere tests/lit_sphere.cpp)
+add_executable(rl3d_lit_sphere examples/lit_sphere.cpp)
 target_link_libraries(rl3d_lit_sphere rl3d)
 
-add_executable(rl3d_hdr_plane tests/hdr_plane.cpp)
+add_executable(rl3d_hdr_plane examples/hdr_plane.cpp)
 target_link_libraries(rl3d_hdr_plane rl3d)
 
-add_executable(rl3d_pbr_sphere tests/pbr_sphere.cpp)
+add_executable(rl3d_pbr_sphere examples/pbr_sphere.cpp)
 target_link_libraries(rl3d_pbr_sphere rl3d)
 
-add_executable(rl3d_ibl_spheres tests/ibl_spheres.cpp)
+add_executable(rl3d_ibl_spheres examples/ibl_spheres.cpp)
 target_link_libraries(rl3d_ibl_spheres rl3d)
 
-add_executable(rl3d_cubemap_gen tests/cubemap_generation.cpp)
+add_executable(rl3d_cubemap_gen examples/cubemap_generation.cpp)
 target_link_libraries(rl3d_cubemap_gen rl3d)
