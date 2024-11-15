@@ -63,7 +63,6 @@ int main() {
 
             DrawTextureEx(buffers.albedo, (Vector2){0,0}, 0, 0.3333, WHITE);
             DrawTextureEx(buffers.normal, (Vector2){166,0}, 0, 0.3333, WHITE);
-            DrawTextureEx(buffers.height, (Vector2){333,0}, 0, 0.3333, WHITE);
 
             DrawTextureEx(buffers.metallic, (Vector2){0,166}, 0, 0.3333, WHITE);
             DrawTextureEx(buffers.roughness, (Vector2){166,166}, 0, 0.3333, WHITE);

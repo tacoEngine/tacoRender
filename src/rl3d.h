@@ -37,6 +37,9 @@ void Init3D();
 void Uninit3D();
 
 GBuffers LoadGBuffers(int width, int height);
+
+RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool useRenderBuffer);
+
 GBufferPresenter LoadPresenter(GBuffers buffers);
 
 Shader GetGBufferShader();

@@ -81,7 +81,7 @@ GBuffers LoadGBuffers(int width, int height) {
     return target;
 }
 
-RenderTexture LoadHDRRenderTexture(int width, int height) {
+RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool useRenderBuffer) {
     RenderTexture2D target = {0};
 
     target.id = rlLoadFramebuffer();
@@ -89,20 +89,20 @@ RenderTexture LoadHDRRenderTexture(int width, int height) {
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
 
-        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, 1);
+        target.texture.id = rlLoadTexture(NULL, width, height, format, 1);
         target.texture.width = width;
         target.texture.height = height;
-        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R16G16B16;
+        target.texture.format = format;
         target.texture.mipmaps = 1;
 
-        target.depth.id = rlLoadTextureDepth(width, height, true);
+        target.depth.id = rlLoadTextureDepth(width, height, useRenderBuffer);
         target.depth.width = width;
         target.depth.height = height;
         target.depth.format = 19;
         target.depth.mipmaps = 1;
 
         rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
+        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, useRenderBuffer ? RL_ATTACHMENT_RENDERBUFFER: RL_ATTACHMENT_TEXTURE2D, 0);
 
         if (rlFramebufferComplete(target.id))
             TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
@@ -116,10 +116,10 @@ RenderTexture LoadHDRRenderTexture(int width, int height) {
 
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
-    presenter.target = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
+    presenter.target = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
     // Todo: Make back buffer depthless
-    presenter.back[0] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
-    presenter.back[1] = LoadHDRRenderTexture(buffers.albedo.width, buffers.albedo.height);
+    presenter.back[0] = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.back[1] = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
     presenter.source = buffers;
 
     return presenter;

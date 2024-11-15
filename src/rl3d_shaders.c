@@ -25,6 +25,7 @@ static Shader gammaShader = {0};
 static Shader toneMapReinhardShader = {0};
 static Shader irradianceShader = {0};
 static Shader prefilterShader = {0};
+static Shader sssPointShader = {0};
 
 const char rl3d_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
@@ -122,7 +123,7 @@ void LoadShaders() {
         gBufferShader.locs[SHADER_LOC_MAP_EMISSION] = GetShaderLocation(gBufferShader, "emissionMap");
         gBufferShader.locs[SHADER_LOC_MAP_OCCLUSION] = GetShaderLocation(gBufferShader, "occlusionMap");
 
-        depthDisplayShader = LoadShaderFromMemory(NULL, rl3d_depth_display_fs);
+        depthDisplayShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_depth_display_fs);
         addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
         bloomShaderHorizontal = LoadShaderFromMemory(NULL, rl3d_blur_hor_fs);
         bloomShaderVertical = LoadShaderFromMemory(NULL, rl3d_blur_vert_fs);

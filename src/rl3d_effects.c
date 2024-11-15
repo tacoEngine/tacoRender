@@ -14,14 +14,15 @@
 #include <rlgl.h>
 #include <raymath.h>
 
-void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, TextureCubemap prefilter, TextureCubemap irradiance, Texture brdf) {
+void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, TextureCubemap prefilter,
+                      TextureCubemap irradiance, Texture brdf) {
     static Model plane = {0};
     Camera topdown = (Camera) {
-            (Vector3) {0, 1, 0},
-            (Vector3) {0, 0, 0},
-            (Vector3) {0, 0, -1},
-            1,
-            CAMERA_ORTHOGRAPHIC
+        (Vector3) {0, 1, 0},
+        (Vector3) {0, 0, 0},
+        (Vector3) {0, 0, -1},
+        1,
+        CAMERA_ORTHOGRAPHIC
     };
     if (plane.meshes == nullptr) {
         plane = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
@@ -55,13 +56,13 @@ void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, 
 
     BeginMode3D(topdown);
 
-    DrawModelEx(plane, (Vector3){0,0,0}, (Vector3){0,0,0}, 0, (Vector3){aspect,1,1}, WHITE);
+    DrawModelEx(plane, (Vector3) {0, 0, 0}, (Vector3) {0, 0, 0}, 0, (Vector3) {aspect, 1, 1}, WHITE);
 
     EndMode3D();
 }
 
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
-    RunLightShaderEx(presenter, camera, shader, (Texture){0}, (Texture){0}, (Texture){0});
+    RunLightShaderEx(presenter, camera, shader, (Texture) {0}, (Texture) {0}, (Texture) {0});
 }
 
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
@@ -104,13 +105,13 @@ Skybox LoadSkybox(const char *filename) {
 
 Skybox LoadSkyboxImage(Image image) {
     float vertices[] = {
-            -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
-            1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f,
+        -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f,
     };
 
     Mesh mesh = (Mesh) {0};
@@ -127,7 +128,7 @@ Skybox LoadSkyboxImage(Image image) {
     skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = cubemap;
 
     return (Skybox) {
-            skybox
+        skybox
     };
 }
 
@@ -195,8 +196,8 @@ void ApplyGammaCorrection(GBufferPresenter presenter, float gamma) {
 
 void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper) {
     switch (mapper) {
-        case TONE_MAP_REINHARD:
-            return RunPostProcessShader(presenter, GetShader(SHADER_TONE_MAP_REINHARD));
+    case TONE_MAP_REINHARD:
+        return RunPostProcessShader(presenter, GetShader(SHADER_TONE_MAP_REINHARD));
     }
 }
 
