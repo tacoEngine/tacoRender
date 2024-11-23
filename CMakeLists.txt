@@ -45,3 +45,6 @@ target_link_libraries(rl3d_ibl_spheres rl3d)
 
 add_executable(rl3d_cubemap_gen examples/cubemap_generation.cpp)
 target_link_libraries(rl3d_cubemap_gen rl3d)
+
+add_executable(rl3d_shadowmap examples/shadow_map.cpp)
+target_link_libraries(rl3d_shadowmap rl3d)

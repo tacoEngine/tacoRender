@@ -9,6 +9,11 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D depth;
+uniform sampler2D cascades[8];
+uniform mat4 cascadeMats[8];
+uniform float cascadeDists[8];
+uniform int cascadeCount;
+
 uniform vec3 camPos;
 uniform mat4 invView;
 uniform mat4 invProj;
@@ -71,10 +76,49 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+float sampleCascade(int cascadeIndex, vec2 coords) {
+    switch (cascadeIndex) {
+        case 0:
+            return texture(cascades[0], coords).x;
+        case 1:
+            return texture(cascades[1], coords).x;
+        case 2:
+            return texture(cascades[2], coords).x;
+        case 3:
+            return texture(cascades[3], coords).x;
+        case 4:
+            return texture(cascades[4], coords).x;
+        case 5:
+            return texture(cascades[5], coords).x;
+        case 6:
+            return texture(cascades[6], coords).x;
+        case 7:
+            return texture(cascades[7], coords).x;
+    }
+    return 0;
+}
+
+float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos, float lightAngle)
+{
+    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
+    projCoords = 0.5 * projCoords + 0.5;
+
+    if (projCoords.z > 1.0)
+        return 1.0;
+
+    float depth = sampleCascade(cascadeIndex, projCoords.xy);
+
+    if (depth - 0.00001 > projCoords.z)
+        return 1.0;
+    else
+        return 0.0;
+}
+
 void main() {
     finalColor = vec4(0, 0, 0, 0);
     float dist = texture(depth, fragTexCoord).r;
     if (dist == 1) discard;
+    float linearDist = LinearizeDepth(dist);
     vec3 worldPos = WorldPosFromDepth(dist);
 
     vec4 albedo = texture(albedoMap, fragTexCoord);
@@ -86,6 +130,17 @@ void main() {
     vec3 viewDir = normalize(camPos - worldPos);
 
     float lightAngle = max(dot(lightDir, normal), 0.0);
+
+    float shadowFactor = 0.0;
+    vec3 cascadeColor = vec3(0);
+
+    for (int i = 0; i < cascadeCount; i++) {
+        if (linearDist <= cascadeDists[i]) {
+            vec4 lightSpacePos = cascadeMats[i] * vec4(worldPos, 1);
+            shadowFactor = CalcShadowFactor(i, lightSpacePos, lightAngle);
+            break;
+        }
+    }
 
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
@@ -109,5 +164,5 @@ void main() {
 
     vec3 outColor = (kD * albedo.rgb / PI + specular) * radiance * lightAngle;
 
-    finalColor = vec4(outColor, albedo.a);
+    finalColor = vec4(outColor * shadowFactor, albedo.a);
 }
