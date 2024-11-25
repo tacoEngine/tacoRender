@@ -363,11 +363,9 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
     shadowMap.projections[cascade] = MatrixMultiply(lightView, lightProj);
 
     rlEnableDepthTest(); // Enable DEPTH_TEST for 3D
-    rlSetCullFace(RL_CULL_FACE_FRONT);
 }
 
 void EndShadowMap() {
-    rlSetCullFace(RL_CULL_FACE_BACK);
     EndMode3D();
     EndTextureMode();
 }

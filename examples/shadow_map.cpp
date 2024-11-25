@@ -44,6 +44,16 @@ int main() {
     sphere.materials[0].maps[MATERIAL_MAP_EMISSION].texture = emission;
     sphere.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = ao;
 
+    Model box = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+    box.materials[0].shader = GetGBufferShader();
+    box.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
+    box.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
+    box.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
+    box.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
+    box.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughness;
+    box.materials[0].maps[MATERIAL_MAP_EMISSION].texture = emission;
+    box.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = ao;
+
     Model plane = LoadModelFromMesh(GenMeshCube(100, 1, 100));
     plane.materials[0].shader = GetGBufferShader();
     plane.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
@@ -53,6 +63,8 @@ int main() {
     plane.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughness;
     plane.materials[0].maps[MATERIAL_MAP_EMISSION].texture = emission;
     plane.materials[0].maps[MATERIAL_MAP_OCCLUSION].texture = ao;
+
+    box.transform = MatrixRotateY(45);
 
     const int CASCADE_COUNT = 3;
 
@@ -73,6 +85,7 @@ int main() {
             BeginMode3D(camera);
 
             DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
+            DrawModel(box, (Vector3) {0, 0, 4}, 1, WHITE);
             DrawModel(plane, (Vector3) {0, -1, 0}, 1, WHITE);
 
             EndMode3D();
@@ -86,6 +99,7 @@ int main() {
             ClearBackground(BLANK);
 
             DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
+            DrawModel(box, (Vector3) {0, 0, 4}, 1, WHITE);
             DrawModel(plane, (Vector3) {0, -1, 0}, 1, WHITE);
 
             EndShadowMap();
