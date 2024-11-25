@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include <cstdio>
 #include <rl3d.h>
 #include <rl3d_effects.h>
 #include <raymath.h>
@@ -57,7 +58,7 @@ int main() {
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
-    ShadowMap shadow_map = LoadShadowMap(1024, CASCADE_COUNT);
+    ShadowMap shadow_map = LoadShadowMap(2048, CASCADE_COUNT);
 
     DisableCursor();
 

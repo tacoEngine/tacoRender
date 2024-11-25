@@ -238,7 +238,7 @@ ShadowMap LoadShadowMap(int size, int cascades) {
     if (target.fbo > 0) {
         rlEnableFramebuffer(target.fbo);
 
-        target.ids = RL_CALLOC(cascades, sizeof(unsigned int));
+        target.ids = RL_CALLOC(8, sizeof(unsigned int));
         target.projections = RL_CALLOC(cascades, sizeof(Matrix));
         target.dists = RL_CALLOC(cascades, sizeof(float));
 
@@ -249,14 +249,19 @@ ShadowMap LoadShadowMap(int size, int cascades) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
             float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
             glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
             target.dists[i] = CULL_FAR * EndOfCascade(i + 1, cascades);
+        }
+
+        for (int i = cascades; i < 8; i++) {
+            target.ids[i] = target.ids[cascades-1];
         }
 
         target.size = size;
@@ -491,13 +496,14 @@ void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, flo
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint,
               ShadowMap shadowMap) {
     static Shader sun = {0};
-    static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeLocs[8], cascadeMatLocs[8], cascadeDistsLocs[8];
+    static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeSizeLoc, cascadeLocs[8], cascadeMatLocs[8], cascadeDistsLocs[8];
     if (sun.id == 0) {
         sun = GetShader(SHADER_SUN);
         dirLoc = GetShaderLocation(sun, "direction");
         intensityLoc = GetShaderLocation(sun, "intensity");
         colorLoc = GetShaderLocation(sun, "color");
         cascadeCountLoc = GetShaderLocation(sun, "cascadeCount");
+        cascadeSizeLoc = GetShaderLocation(sun, "cascadeSize");
         for (int i = 0; i < 8; i++) {
             cascadeLocs[i] = GetShaderLocation(sun, TextFormat("cascades[%i]", i));
             cascadeMatLocs[i] = GetShaderLocation(sun, TextFormat("cascadeMats[%i]", i));
@@ -513,13 +519,14 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     SetShaderValue(sun, colorLoc, &color, SHADER_UNIFORM_VEC3);
 
     SetShaderValue(sun, cascadeCountLoc, &shadowMap.cascades, SHADER_UNIFORM_INT);
+    SetShaderValue(sun, cascadeSizeLoc, &shadowMap.size, SHADER_UNIFORM_INT);
 
     for (int i = 0; i < shadowMap.cascades; i++) {
         SetShaderValueMatrix(sun, cascadeMatLocs[i], shadowMap.projections[i]);
         SetShaderValue(sun, cascadeDistsLocs[i], &shadowMap.dists[i], SHADER_UNIFORM_FLOAT);
     }
 
-    RunLightShaderEx(presenter, camera, sun, shadowMap.cascades, shadowMap.ids, cascadeLocs);
+    RunLightShaderEx(presenter, camera, sun, 8, shadowMap.ids, cascadeLocs);
 }
 
 const char rl3d_brdf_lut[] = {

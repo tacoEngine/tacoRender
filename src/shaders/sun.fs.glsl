@@ -9,10 +9,11 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D depth;
-uniform sampler2D cascades[8];
+uniform sampler2DShadow cascades[8];
 uniform mat4 cascadeMats[8];
 uniform float cascadeDists[8];
 uniform int cascadeCount;
+uniform int cascadeSize;
 
 uniform vec3 camPos;
 uniform mat4 invView;
@@ -76,42 +77,55 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float sampleCascade(int cascadeIndex, vec2 coords) {
+float SampleCascade(int cascadeIndex, vec4 coords) {
     switch (cascadeIndex) {
         case 0:
-            return texture(cascades[0], coords).x;
+            return textureProj(cascades[0], coords);
         case 1:
-            return texture(cascades[1], coords).x;
+            return textureProj(cascades[1], coords);
         case 2:
-            return texture(cascades[2], coords).x;
+            return textureProj(cascades[2], coords);
         case 3:
-            return texture(cascades[3], coords).x;
+            return textureProj(cascades[3], coords);
         case 4:
-            return texture(cascades[4], coords).x;
+            return textureProj(cascades[4], coords);
         case 5:
-            return texture(cascades[5], coords).x;
+            return textureProj(cascades[5], coords);
         case 6:
-            return texture(cascades[6], coords).x;
+            return textureProj(cascades[6], coords);
         case 7:
-            return texture(cascades[7], coords).x;
+            return textureProj(cascades[7], coords);
     }
-    return 0;
+    return 1.0;
 }
 
-float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos, float lightAngle)
-{
+float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos, float lightAngle) {
     vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
     projCoords = 0.5 * projCoords + 0.5;
 
     if (projCoords.z > 1.0)
         return 1.0;
 
-    float depth = sampleCascade(cascadeIndex, projCoords.xy);
+    float texelSize = 1.f/float(cascadeSize);
+    float shadow = 0;
+    const float radius = 3.f;
+    const uint samples = 32u;
 
-    if (depth - 0.00001 > projCoords.z)
-        return 1.0;
-    else
-        return 0.0;
+    //float bias = max(0.05 * (1.0 - lightAngle), 0.005);
+
+    float x, y;
+    float sampleDim = sqrt(float(samples));
+    for (y = -1; y <= 1; y += 2.f/sampleDim) {
+        for (x = -1; x <= 1; x += 2.f/sampleDim) {
+            vec4 loc = vec4(projCoords.xy + vec2(x, y) * radius * texelSize * lightSpacePos.w, projCoords.z, lightSpacePos.w);
+            float sam = SampleCascade(cascadeIndex, loc);
+            shadow += sam;
+        }
+    }
+
+    shadow /= float(samples);
+
+    return shadow;
 }
 
 void main() {
@@ -131,7 +145,7 @@ void main() {
 
     float lightAngle = max(dot(lightDir, normal), 0.0);
 
-    float shadowFactor = 0.0;
+    float shadowFactor = 1.0;
     vec3 cascadeColor = vec3(0);
 
     for (int i = 0; i < cascadeCount; i++) {
