@@ -111,8 +111,6 @@ float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos, float lightAngle) {
     const float radius = 3.f;
     const uint samples = 32u;
 
-    //float bias = max(0.05 * (1.0 - lightAngle), 0.005);
-
     float x, y;
     float sampleDim = sqrt(float(samples));
     for (y = -1; y <= 1; y += 2.f/sampleDim) {
@@ -123,6 +121,8 @@ float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos, float lightAngle) {
         }
     }
 
+    if (shadow >= samples - 1u)
+        shadow = samples;
     shadow /= float(samples);
 
     return shadow;

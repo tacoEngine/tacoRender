@@ -75,8 +75,6 @@ int main() {
             DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
             DrawModel(plane, (Vector3) {0, -1, 0}, 1, WHITE);
 
-            //DrawShadowMapFrustum(shadow_map, origCamera, (Vector3) {1, -1, 0}, 0);
-
             EndMode3D();
 
             EndGBufferMode();

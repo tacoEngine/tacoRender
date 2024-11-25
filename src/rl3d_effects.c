@@ -300,14 +300,15 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
 
     float previousCascade;
     if (cascade == 0)
-        previousCascade = 0.01f;
+        previousCascade = 1.f;
     else
         previousCascade = -shadowMap.dists[cascade-1];
     float nextCascade = -shadowMap.dists[cascade];
 
     float aspectRatio = (float) GetScreenHeight() / (float) GetScreenWidth();
-    float tanHalfHFOV = tanf(DEG2RAD * (camera.fovy / 2.0f));
-    float tanHalfVFOV = tanf(DEG2RAD * (camera.fovy * aspectRatio / 2.0f));
+    float fovy = camera.fovy + 20;
+    float tanHalfHFOV = tanf(DEG2RAD * (fovy / 2.0f));
+    float tanHalfVFOV = tanf(DEG2RAD * (fovy * aspectRatio / 2.0f));
 
     float xn = previousCascade * tanHalfHFOV;
     float xf = nextCascade * tanHalfHFOV;
