@@ -284,6 +284,18 @@ ShadowMap LoadShadowMap(int size, int cascades) {
     return target;
 }
 
+void UnloadShadowMap(ShadowMap shadowMap) {
+    for (int i = 0; i < shadowMap.cascades; i++) {
+        rlUnloadTexture(shadowMap.ids[i]);
+    }
+
+    rlUnloadFramebuffer(shadowMap.fbo);
+
+    RL_FREE(shadowMap.ids);
+    RL_FREE(shadowMap.projections);
+    RL_FREE(shadowMap.dists);
+}
+
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade) {
     RenderTexture dummy = (RenderTexture) {.id = shadowMap.fbo};
     dummy.texture.width = shadowMap.size;

@@ -47,6 +47,7 @@ void BeginLightingPass(GBufferPresenter presenter);
 void EndLightingPass();
 
 ShadowMap LoadShadowMap(int size, int cascades);
+void UnloadShadowMap(ShadowMap);
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade);
 void EndShadowMap();
 
