@@ -537,7 +537,12 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
         SetShaderValue(sun, cascadeDistsLocs[i], &shadowMap.dists[i], SHADER_UNIFORM_FLOAT);
     }
 
-    RunLightShaderEx(presenter, camera, sun, 8, shadowMap.ids, cascadeLocs);
+    if (shadowMap.ids)
+        RunLightShaderEx(presenter, camera, sun, 8, shadowMap.ids, cascadeLocs);
+    else {
+        const unsigned int dummyIDs[] = {0,0,0,0,0,0,0,0};
+        RunLightShaderEx(presenter, camera, sun, 8, dummyIDs, cascadeLocs);;
+    }
 }
 
 const char rl3d_brdf_lut[] = {

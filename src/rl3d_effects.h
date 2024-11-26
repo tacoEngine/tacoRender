@@ -35,6 +35,8 @@ typedef struct ShadowMap {
     int cascades;
 } ShadowMap;
 
+#define NULL_SHADOW_MAP ((ShadowMap) {0, NULL, NULL, NULL, 0, 0})
+
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader);
 void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, int extraTextureCount,
                       unsigned int *extraTextureIDs, int *extraTextureLocs);
