@@ -16,6 +16,7 @@ static Shader depthDisplayShader = {0};
 static Shader addShader = {0};
 static Shader bloomShaderHorizontal = {0};
 static Shader bloomShaderVertical = {0};
+static Shader blurBoxShader = {0};
 static Shader skyboxShader = {0};
 static Shader flipYShader = {0};
 static Shader pointShader = {0};
@@ -26,6 +27,7 @@ static Shader toneMapReinhardShader = {0};
 static Shader irradianceShader = {0};
 static Shader prefilterShader = {0};
 static Shader sssPointShader = {0};
+static Shader ssaoShader = {0};
 
 const char rl3d_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
@@ -59,6 +61,11 @@ const char rl3d_blur_hor_fs[] = {
 
 const char rl3d_blur_vert_fs[] = {
 #embed "shaders/blur_vert.fs.glsl"
+    , '\0'
+};
+
+const char rl3d_blur_box_fs[] = {
+#embed "shaders/blur_box.fs.glsl"
     , '\0'
 };
 
@@ -112,6 +119,11 @@ const char rl3d_prefilter_fs[] = {
     , '\0'
 };
 
+const char rl3d_ssao_fs[] = {
+#embed "shaders/ssao.fs.glsl"
+    , '\0'
+};
+
 void LoadShaders() {
     if (gBufferShader.id == 0) {
         gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
@@ -127,6 +139,7 @@ void LoadShaders() {
         addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
         bloomShaderHorizontal = LoadShaderFromMemory(NULL, rl3d_blur_hor_fs);
         bloomShaderVertical = LoadShaderFromMemory(NULL, rl3d_blur_vert_fs);
+        blurBoxShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_blur_box_fs);
         skyboxShader = LoadShaderFromMemory(rl3d_skybox_vs, rl3d_skybox_fs);
 
         skyboxShader.locs[SHADER_LOC_MAP_CUBEMAP] = GetShaderLocation(skyboxShader, "skybox");
@@ -167,6 +180,10 @@ void LoadShaders() {
         irradianceShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_irradiance_fs);
 
         prefilterShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_prefilter_fs);
+
+        ssaoShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_ssao_fs);
+        ssaoShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(ssaoShader, "normalMap");
+        ssaoShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(ssaoShader, "depth");
     }
 }
 
@@ -182,6 +199,7 @@ void UnloadShaders() {
     UnloadShader(sunShader);
     UnloadShader(gammaShader);
     UnloadShader(toneMapReinhardShader);
+    UnloadShader(ssaoShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -196,6 +214,8 @@ Shader GetShader(EmbeddedShader shade) {
         return bloomShaderHorizontal;
     case SHADER_BLUR_VERT:
         return bloomShaderVertical;
+    case SHADER_BLUR_BOX:
+        return blurBoxShader;
     case SHADER_SKYBOX:
         return skyboxShader;
     case SHADER_FLIP_Y:
@@ -214,6 +234,8 @@ Shader GetShader(EmbeddedShader shade) {
         return irradianceShader;
     case SHADER_PREFILTER:
         return prefilterShader;
+    case SHADER_SSAO:
+        return ssaoShader;
     }
     return LoadMaterialDefault().shader;
 }

@@ -18,6 +18,7 @@ extern "C" {
 // RenderTexture, fbo for texture rendering
 typedef struct GBuffers {
     unsigned int id;        // OpenGL framebuffer object id
+    int width, height;
     Texture albedo;         // Albedo buffer attachment texture
     Texture metallic;       // Metallic buffer attachment texture
     Texture normal;         // Normal buffer attachment texture
@@ -31,6 +32,7 @@ typedef struct GBufferPresenter {
     RenderTexture target;
     RenderTexture back[2];
     GBuffers source;
+    RenderTexture occlusion; // FBO solely rendering to the ambient occlusion texture
 } GBufferPresenter;
 
 void Init3D();

@@ -37,6 +37,8 @@ GBuffers LoadGBuffers(int width, int height) {
     GBuffers target = {0};
 
     target.id = rlLoadFramebuffer();   // Load an empty framebuffer
+    target.width = width;
+    target.height = height;
 
     if (target.id > 0) {
         rlEnableFramebuffer(target.id);
@@ -116,11 +118,33 @@ RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool us
 
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
-    presenter.target = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.target = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
     // Todo: Make back buffer depthless
-    presenter.back[0] = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
-    presenter.back[1] = LoadCustomRenderTexture(buffers.albedo.width, buffers.albedo.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.back[0] = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.back[1] = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
     presenter.source = buffers;
+
+    presenter.occlusion.id = rlLoadFramebuffer();
+    if (presenter.occlusion.id > 0) {
+        rlEnableFramebuffer(presenter.occlusion.id);
+
+        presenter.occlusion.texture.width = buffers.width;
+        presenter.occlusion.texture.height = buffers.height;
+
+        presenter.occlusion.depth.id = rlLoadTextureDepth(buffers.width, buffers.height, true);
+        presenter.occlusion.depth.width = buffers.width;
+        presenter.occlusion.depth.height = buffers.height;
+        presenter.occlusion.depth.format = 19;
+        presenter.occlusion.depth.mipmaps = 1;
+
+        rlFramebufferAttach(presenter.occlusion.id, buffers.ao.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(presenter.occlusion.id, presenter.occlusion.depth.id, RL_ATTACHMENT_DEPTH,  RL_ATTACHMENT_RENDERBUFFER, 0);
+
+        if (rlFramebufferComplete(presenter.occlusion.id))
+            TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
+
+        rlDisableFramebuffer();
+    }
 
     return presenter;
 }

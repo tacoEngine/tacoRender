@@ -17,46 +17,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
-void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader, int cubemapCount,
-                       unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
-                       int *extraTextureLocs) {
-    static Mesh plane = {0};
-    Camera topdown = (Camera) {
-        (Vector3) {0, 1, 0},
-        (Vector3) {0, 0, 0},
-        (Vector3) {0, 0, -1},
-        1,
-        CAMERA_ORTHOGRAPHIC
-    };
-    if (plane.vaoId == 0) {
-        plane = GenMeshPlane(1, 1, 1, 1);
-    }
-
-    int invViewLoc = GetShaderLocation(shader, "invView");
-    int invProjLoc = GetShaderLocation(shader, "invProj");
-
-    SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
-    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
-    double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
-    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
-
-    SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
-    SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
-
-    float aspect = (float) GetScreenWidth() / (float) GetScreenHeight();
-
-    BeginMode3D(topdown);
-
-    // Calculate transformation matrix from function parameters
-    // Get transform matrix (rotation -> scale -> translation)
-    Matrix matScale = MatrixScale(aspect, 1, 1);
-
-    // Bind shader program
-    rlEnableShader(shader.id);
-
-    // Bind active texture maps (if available)
-#define BindTextureSlot(slot, id, loc) {\
+#define BindTextureSlot(slot, id, loc) if (id >= 0 && loc >= 0) {\
 rlActiveTextureSlot(slot); \
 rlEnableTexture(id); \
 int s = slot; \
@@ -80,6 +41,48 @@ rlActiveTextureSlot(slot); \
 rlDisableTextureCubemap(); \
 }
 
+void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader, int cubemapCount,
+                       unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
+                       int *extraTextureLocs) {
+    static Mesh plane = {0};
+    Camera topdown = (Camera) {
+        (Vector3) {0, 1, 0},
+        (Vector3) {0, 0, 0},
+        (Vector3) {0, 0, -1},
+        1,
+        CAMERA_ORTHOGRAPHIC
+    };
+    if (plane.vaoId == 0) {
+        plane = GenMeshPlane(1, 1, 1, 1);
+    }
+
+    int invViewLoc = GetShaderLocation(shader, "invView");
+    int invProjLoc = GetShaderLocation(shader, "invProj");
+    int camViewLoc = GetShaderLocation(shader, "camView");
+    int camProjLoc = GetShaderLocation(shader, "camProj");
+
+    SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
+    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
+    double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
+    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
+
+    SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
+    SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
+    SetShaderValueMatrix(shader, camViewLoc, GetCameraMatrix(camera));
+    SetShaderValueMatrix(shader, camProjLoc, projection);
+
+    float aspect = (float) GetScreenWidth() / (float) GetScreenHeight();
+
+    BeginMode3D(topdown);
+
+    // Calculate transformation matrix from function parameters
+    // Get transform matrix (rotation -> scale -> translation)
+    Matrix matScale = MatrixScale(aspect, 1, 1);
+
+    // Bind shader program
+    rlEnableShader(shader.id);
+
+    // Bind active texture maps (if available)
     BindTextureSlot(0, presenter.source.albedo.id, shader.locs[SHADER_LOC_MAP_ALBEDO])
     BindTextureSlot(1, presenter.source.metallic.id, shader.locs[SHADER_LOC_MAP_METALNESS])
     BindTextureSlot(2, presenter.source.normal.id, shader.locs[SHADER_LOC_MAP_NORMAL])
@@ -482,6 +485,28 @@ void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper) {
     case TONE_MAP_REINHARD:
         return RunPostProcessShader(presenter, GetShader(SHADER_TONE_MAP_REINHARD));
     }
+}
+
+void ApplySSAO(GBufferPresenter presenter, Camera camera) {
+    BeginTextureMode(presenter.back[0]);
+    rlClearScreenBuffers();
+    RunLightShader(presenter, camera, GetShader(SHADER_SSAO));
+    EndTextureMode();
+
+    rlEnableColorBlend();
+
+    rlSetBlendFactorsSeparate(RL_SRC_COLOR, RL_DST_COLOR, RL_SRC_ALPHA, RL_DST_ALPHA, RL_MIN, RL_MIN);
+
+    BeginTextureMode(presenter.occlusion);
+    BeginBlendMode(BLEND_CUSTOM_SEPARATE);
+    BeginShaderMode(GetShader(SHADER_BLUR_BOX));
+
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
+
+    EndShaderMode();
+    EndBlendMode();
+    EndTextureMode();
+    rlDisableColorBlend();
 }
 
 void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius,
