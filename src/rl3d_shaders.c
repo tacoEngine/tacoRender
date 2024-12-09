@@ -167,6 +167,7 @@ void LoadShaders() {
         iblShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(iblShader, "normalMap");
         iblShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(iblShader, "metallicMap");
         iblShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(iblShader, "roughnessMap");
+        iblShader.locs[SHADER_LOC_MAP_OCCLUSION] = GetShaderLocation(iblShader, "occlusionMap");
         iblShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(iblShader, "depth");
         iblShader.locs[SHADER_LOC_MAP_PREFILTER] = GetShaderLocation(iblShader, "radianceMap");
         iblShader.locs[SHADER_LOC_MAP_IRRADIANCE] = GetShaderLocation(iblShader, "irradianceMap");

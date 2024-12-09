@@ -8,6 +8,7 @@ uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
+uniform sampler2D occlusionMap;
 uniform sampler2D depth;
 uniform vec3 camPos;
 uniform mat4 invView;
@@ -49,6 +50,7 @@ void main() {
     vec3 normal = texture(normalMap, fragTexCoord).rgb;
     float metallic = texture(metallicMap, fragTexCoord).r;
     float roughness = texture(roughnessMap, fragTexCoord).r;
+    float occlusion = texture(occlusionMap, fragTexCoord).r;
 
     vec3 viewDir = normalize(camPos - worldPos);
     float viewAngle = max(dot(normal, viewDir), 0.0);
@@ -75,5 +77,5 @@ void main() {
 
     vec3 ambient = (kD * diffuse + specular);
 
-    finalColor = vec4(ambient, albedo.a);
+    finalColor = vec4(ambient * occlusion, albedo.a);
 }
