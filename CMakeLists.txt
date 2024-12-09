@@ -48,3 +48,6 @@ target_link_libraries(rl3d_cubemap_gen rl3d)
 
 add_executable(rl3d_shadowmap examples/shadow_map.cpp)
 target_link_libraries(rl3d_shadowmap rl3d)
+
+add_executable(rl3d_monkey_ao examples/monkey_ao.cpp)
+target_link_libraries(rl3d_monkey_ao rl3d)
