@@ -13,6 +13,8 @@
 
 #include "rl3d.h"
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

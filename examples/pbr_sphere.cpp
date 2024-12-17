@@ -70,7 +70,7 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightSun(presenter, camera, (Vector3) {0, -1, -1}, 1, WHITE);
+            LightSun(presenter, camera, (Vector3) {0, -1, -1}, 1, WHITE, NULL_SHADOW_MAP);
 
             EndLightingPass();
         }
