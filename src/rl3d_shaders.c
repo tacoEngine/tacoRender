@@ -151,6 +151,7 @@ void LoadShaders() {
         pointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(pointShader, "normalMap");
         pointShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(pointShader, "metallicMap");
         pointShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(pointShader, "roughnessMap");
+        pointShader.locs[SHADER_LOC_MAP_EMISSION] = GetShaderLocation(pointShader, "emissiveMap");
         pointShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(pointShader, "depth");
         pointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(pointShader, "camPos");
 
@@ -159,6 +160,7 @@ void LoadShaders() {
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
         sunShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(sunShader, "metallicMap");
         sunShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(sunShader, "roughnessMap");
+        sunShader.locs[SHADER_LOC_MAP_EMISSION] = GetShaderLocation(sunShader, "emissiveMap");
         sunShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(sunShader, "depth");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 
@@ -168,6 +170,7 @@ void LoadShaders() {
         iblShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(iblShader, "metallicMap");
         iblShader.locs[SHADER_LOC_MAP_ROUGHNESS] = GetShaderLocation(iblShader, "roughnessMap");
         iblShader.locs[SHADER_LOC_MAP_OCCLUSION] = GetShaderLocation(iblShader, "occlusionMap");
+        iblShader.locs[SHADER_LOC_MAP_EMISSION] = GetShaderLocation(iblShader, "emissiveMap");
         iblShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(iblShader, "depth");
         iblShader.locs[SHADER_LOC_MAP_PREFILTER] = GetShaderLocation(iblShader, "radianceMap");
         iblShader.locs[SHADER_LOC_MAP_IRRADIANCE] = GetShaderLocation(iblShader, "irradianceMap");

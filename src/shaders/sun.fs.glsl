@@ -8,6 +8,7 @@ uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
+uniform sampler2D emissiveMap;
 uniform sampler2D depth;
 uniform sampler2DShadow cascades[8];
 uniform mat4 cascadeMats[8];
@@ -141,6 +142,7 @@ void main() {
     vec3 normal = texture(normalMap, fragTexCoord).rgb;
     float metallic = texture(metallicMap, fragTexCoord).r;
     float roughness = texture(roughnessMap, fragTexCoord).r;
+    vec3 emission = texture(emissiveMap, fragTexCoord).rgb;
 
     vec3 lightDir = normalize(-direction);
     vec3 viewDir = normalize(camPos - worldPos);
@@ -180,5 +182,5 @@ void main() {
 
     vec3 outColor = (kD * albedo.rgb / PI + specular) * radiance * lightAngle;
 
-    finalColor = vec4(outColor * shadowFactor, albedo.a);
+    finalColor = vec4(outColor * shadowFactor + emission, albedo.a);
 }
