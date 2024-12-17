@@ -47,7 +47,7 @@ void main() {
     if (dist == 1) discard;
     vec3 worldPos = WorldPosFromDepth(dist);
 
-    vec4 albedo = texture(albedoMap, fragTexCoord);
+    vec4 albedo = pow(texture(albedoMap, fragTexCoord), vec4(vec3(2.2), 1));
     vec3 normal = texture(normalMap, fragTexCoord).rgb;
     float metallic = texture(metallicMap, fragTexCoord).r;
     float roughness = texture(roughnessMap, fragTexCoord).r;
