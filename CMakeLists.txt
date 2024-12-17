@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CUSTOMIZE_BUILD ON)
 set(SUPPORT_FILEFORMAT_HDR ON)
+set(SUPPORT_FILEFORMAT_JPG ON)
 add_subdirectory(raylib)
 
 add_library(rl3d
@@ -42,6 +43,9 @@ target_link_libraries(rl3d_pbr_sphere rl3d)
 
 add_executable(rl3d_ibl_spheres examples/ibl_spheres.cpp)
 target_link_libraries(rl3d_ibl_spheres rl3d)
+
+add_executable(rl3d_ibl_model examples/ibl_model.cpp)
+target_link_libraries(rl3d_ibl_model rl3d)
 
 add_executable(rl3d_cubemap_gen examples/cubemap_generation.cpp)
 target_link_libraries(rl3d_cubemap_gen rl3d)
