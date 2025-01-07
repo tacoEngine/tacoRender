@@ -70,7 +70,7 @@ int main() {
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
-    ShadowMap shadow_map = LoadShadowMap(2048, CASCADE_COUNT);
+    ShadowMap shadow_map = LoadShadowMap(2048, CASCADE_COUNT, 1000);
 
     DisableCursor();
 

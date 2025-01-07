@@ -50,7 +50,7 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
 void BeginLightingPass(GBufferPresenter presenter);
 void EndLightingPass();
 
-ShadowMap LoadShadowMap(int size, int cascades);
+ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance);
 void UnloadShadowMap(ShadowMap);
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade);
 void EndShadowMap();

@@ -233,7 +233,7 @@ float EndOfCascade(int cascade, int cascadeCount) {
         return 3.f * (x - 0.7f) + 0.05f;
 }
 
-ShadowMap LoadShadowMap(int size, int cascades) {
+ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
     ShadowMap target = {0};
 
     target.fbo = rlLoadFramebuffer(); // Load an empty framebuffer
@@ -260,7 +260,7 @@ ShadowMap LoadShadowMap(int size, int cascades) {
             float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
             glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-            target.dists[i] = CULL_FAR * EndOfCascade(i + 1, cascades);
+            target.dists[i] = cascadeDistance * EndOfCascade(i + 1, cascades);
         }
 
         for (int i = cascades; i < 8; i++) {
