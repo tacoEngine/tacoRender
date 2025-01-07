@@ -225,12 +225,16 @@ void EndLightingPass() {
 #define CULL_NEAR (-1.f)
 
 
-float EndOfCascade(int cascade, int cascadeCount) {
+float EndOfCascade(int cascade, int cascadeCount, float cascadeDistance) {
     float x = (float) cascade / (float) cascadeCount;
+    float f0;
     if (x <= 0.7)
-        return (x * x) / 4.9f;
+        f0 = (x * x) / 4.9f;
     else
-        return 3.f * (x - 0.7f) + 0.05f;
+        f0 = 3.f * (x - 0.7f) + 0.1f;
+    float f1 = powf(x, powf(0.45f * (100/cascadeDistance), -0.5f));
+
+    return fmaxf(f0, f1);
 }
 
 ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
@@ -260,7 +264,8 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
             float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
             glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-            target.dists[i] = cascadeDistance * EndOfCascade(i + 1, cascades);
+            float dist = cascadeDistance * EndOfCascade(i + 1, cascades, cascadeDistance);
+            target.dists[i] = dist;
         }
 
         for (int i = cascades; i < 8; i++) {
