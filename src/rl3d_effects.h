@@ -61,7 +61,6 @@ void DrawSkybox(Skybox skybox, Color tint);
 
 void ShadeFlat(GBufferPresenter presenter);
 
-void ApplyBloom(GBufferPresenter presenter, unsigned int iterations, float radius);
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma);
 void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);
 void ApplySSAO(GBufferPresenter presenter, Camera camera);

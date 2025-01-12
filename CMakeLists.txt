@@ -26,9 +26,6 @@ target_include_directories(rl3d PUBLIC src)
 add_executable(rl3d_gbuffer_sphere examples/gbuffer_sphere.cpp)
 target_link_libraries(rl3d_gbuffer_sphere rl3d)
 
-add_executable(rl3d_emission_sphere examples/emission_sphere.cpp)
-target_link_libraries(rl3d_emission_sphere rl3d)
-
 add_executable(rl3d_skybox examples/skybox.cpp)
 target_link_libraries(rl3d_skybox rl3d)
 
