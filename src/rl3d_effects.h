@@ -31,6 +31,7 @@ typedef struct ShadowMap {
     unsigned int fbo;
 
     unsigned int *ids;
+    RenderTexture back[2];
     Matrix *projections;
     float *dists;
     int size;
@@ -46,6 +47,7 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
                        unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
                        int *extraTextureLocs);
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
+Texture BlurTexture(RenderTexture back[], Texture texture, int iterations);
 
 void BeginLightingPass(GBufferPresenter presenter);
 void EndLightingPass();
@@ -54,6 +56,7 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance);
 void UnloadShadowMap(ShadowMap);
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade);
 void EndShadowMap();
+void FilterShadowMap(ShadowMap shadowMap);
 
 Skybox LoadSkybox(const char *filename);
 Skybox LoadSkyboxImage(Image image);

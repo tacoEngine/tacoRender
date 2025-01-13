@@ -16,7 +16,7 @@
 #include <external/glad.h>
 
 #include <stdlib.h>
-#include <stdio.h>
+
 #define BindTextureSlot(slot, id, loc) if (id >= 0 && loc >= 0) {\
 rlActiveTextureSlot(slot); \
 rlEnableTexture(id); \
@@ -129,7 +129,9 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
         if (eyeCount == 1) matModelViewProjection = MatrixMultiply(matModelViewProjection, matProjection);
         else {
             // Setup current eye viewport (half screen width)
-            rlViewport(eye * presenter.target.texture.width / 2, 0, presenter.target.texture.width / 2,
+            rlViewport(eye * presenter.target.texture.width / 2,
+                       0,
+                       presenter.target.texture.width / 2,
                        presenter.target.texture.height);
             matModelViewProjection = MatrixMultiply(
                 MatrixMultiply(matModelViewProjection, rlGetMatrixViewOffsetStereo(eye)),
@@ -179,8 +181,15 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
 
 void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, int extraTextureCount,
                       unsigned int *extraTextureIDs, int *extraTextureLocs) {
-    RunLightShaderPro(presenter, camera, shader, 0, NULL, NULL, extraTextureCount,
-                      extraTextureIDs, extraTextureLocs);
+    RunLightShaderPro(presenter,
+                      camera,
+                      shader,
+                      0,
+                      NULL,
+                      NULL,
+                      extraTextureCount,
+                      extraTextureIDs,
+                      extraTextureLocs);
 }
 
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
@@ -203,6 +212,32 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
     DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 
     EndTextureMode();
+}
+
+Texture BlurTexture(RenderTexture back[], Texture texture, int iterations) {
+    static Shader blurShader = {0};
+    static int horizontalLoc;
+    if (blurShader.id == 0) {
+        blurShader = GetShader(SHADER_BLUR_GAUSS);
+        horizontalLoc = GetShaderLocation(blurShader, "horizontal");
+    }
+
+    for (unsigned int i = 0; i < iterations * 2; i++) {
+        unsigned int horizontal = i & 1;
+        SetShaderValue(blurShader, horizontalLoc, &horizontal, RL_SHADER_UNIFORM_UINT);
+
+        BeginTextureMode(back[!(i & 1)]);
+        rlClearScreenBuffers();
+        Texture tex = (i == 0) ? texture : back[i & 1].texture;
+
+        BeginShaderMode(blurShader);
+        DrawTexture(tex, 0, 0, WHITE);
+        EndTextureMode();
+
+        EndTextureMode();
+    }
+
+    EndShaderMode();
 }
 
 void BeginLightingPass(GBufferPresenter presenter) {
@@ -232,7 +267,7 @@ float EndOfCascade(int cascade, int cascadeCount, float cascadeDistance) {
         f0 = (x * x) / 4.9f;
     else
         f0 = 3.f * (x - 0.7f) + 0.1f;
-    float f1 = powf(x, powf(0.45f * (100/cascadeDistance), -0.5f));
+    float f1 = powf(x, powf(0.45f * (100 / cascadeDistance), -0.5f));
 
     return fmaxf(f0, f1);
 }
@@ -256,8 +291,6 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
@@ -268,8 +301,11 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
             target.dists[i] = dist;
         }
 
+        target.back[0] = LoadCustomRenderTexture(size, size, RL_PIXELFORMAT_UNCOMPRESSED_R32, true, false);
+        target.back[1] = LoadCustomRenderTexture(size, size, RL_PIXELFORMAT_UNCOMPRESSED_R32, true, false);
+
         for (int i = cascades; i < 8; i++) {
-            target.ids[i] = target.ids[cascades-1];
+            target.ids[i] = target.ids[cascades - 1];
         }
 
         target.size = size;
@@ -374,8 +410,6 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
 
     Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, minZ, maxZ);
 
-    rlDrawRenderBatchActive(); // Update and draw internal render batch
-
     rlSetMatrixProjection(lightProj);
     rlSetMatrixModelview(lightView);
 
@@ -388,6 +422,36 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
 void EndShadowMap() {
     EndMode3D();
     EndTextureMode();
+}
+
+void FilterShadowMap(ShadowMap shadowMap) {
+    for (int i = 0; i < shadowMap.cascades; i++) {
+        Texture tex;
+        tex.id = shadowMap.ids[i];
+        tex.width = shadowMap.size;
+        tex.height = shadowMap.size;
+
+        rlDisableDepthTest();
+
+        BlurTexture(shadowMap.back, tex, 2);
+
+        // Set cascade as depth attachment
+        rlFramebufferAttach(shadowMap.fbo, tex.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+
+        RenderTexture dummy = (RenderTexture) {.id = shadowMap.fbo};
+        dummy.texture.width = shadowMap.size;
+        dummy.texture.height = shadowMap.size;
+
+        rlEnableDepthTest();
+
+        BeginTextureMode(dummy);
+        rlClearScreenBuffers();
+        BeginShaderMode(GetShader(SHADER_TEX_TO_DEPTH));
+        DrawTexture(shadowMap.back[0].texture, 0, 0, WHITE);
+        EndTextureMode();
+
+        break;
+    }
 }
 
 Skybox LoadSkybox(const char *filename) {
@@ -501,7 +565,8 @@ void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, flo
 void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint,
               ShadowMap shadowMap) {
     static Shader sun = {0};
-    static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeSizeLoc, cascadeLocs[8], cascadeMatLocs[8], cascadeDistsLocs[8];
+    static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeSizeLoc, cascadeLocs[8], cascadeMatLocs[8],
+               cascadeDistsLocs[8];
     if (sun.id == 0) {
         sun = GetShader(SHADER_SUN);
         dirLoc = GetShaderLocation(sun, "direction");
@@ -534,7 +599,7 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     if (shadowMap.ids)
         RunLightShaderEx(presenter, camera, sun, 8, shadowMap.ids, cascadeLocs);
     else {
-        const unsigned int dummyIDs[] = {0,0,0,0,0,0,0,0};
+        const unsigned int dummyIDs[] = {0, 0, 0, 0, 0, 0, 0, 0};
         RunLightShaderEx(presenter, camera, sun, 8, dummyIDs, cascadeLocs);;
     }
 }

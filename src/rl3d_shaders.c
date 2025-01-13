@@ -14,8 +14,7 @@
 static Shader gBufferShader = {0};
 static Shader depthDisplayShader = {0};
 static Shader addShader = {0};
-static Shader bloomShaderHorizontal = {0};
-static Shader bloomShaderVertical = {0};
+static Shader blurGaussShader = {0};
 static Shader blurBoxShader = {0};
 static Shader skyboxShader = {0};
 static Shader flipYShader = {0};
@@ -28,6 +27,7 @@ static Shader irradianceShader = {0};
 static Shader prefilterShader = {0};
 static Shader sssPointShader = {0};
 static Shader ssaoShader = {0};
+static Shader texToDepthShader = {0};
 
 const char rl3d_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
@@ -54,13 +54,8 @@ const char rl3d_add_fs[] = {
     , '\0'
 };
 
-const char rl3d_blur_hor_fs[] = {
-#embed "shaders/blur_hor.fs.glsl"
-    , '\0'
-};
-
-const char rl3d_blur_vert_fs[] = {
-#embed "shaders/blur_vert.fs.glsl"
+const char rl3d_blur_gauss_fs[] = {
+#embed "shaders/blur_gauss.fs.glsl"
     , '\0'
 };
 
@@ -124,6 +119,11 @@ const char rl3d_ssao_fs[] = {
     , '\0'
 };
 
+const char rl3d_tex_to_depth_fs[] = {
+#embed "shaders/tex_to_depth.fs.glsl"
+    , '\0'
+};
+
 void LoadShaders() {
     if (gBufferShader.id == 0) {
         gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
@@ -137,8 +137,7 @@ void LoadShaders() {
 
         depthDisplayShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_depth_display_fs);
         addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
-        bloomShaderHorizontal = LoadShaderFromMemory(NULL, rl3d_blur_hor_fs);
-        bloomShaderVertical = LoadShaderFromMemory(NULL, rl3d_blur_vert_fs);
+        blurGaussShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_blur_gauss_fs);
         blurBoxShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_blur_box_fs);
         skyboxShader = LoadShaderFromMemory(rl3d_skybox_vs, rl3d_skybox_fs);
 
@@ -188,6 +187,8 @@ void LoadShaders() {
         ssaoShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_ssao_fs);
         ssaoShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(ssaoShader, "normalMap");
         ssaoShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(ssaoShader, "depth");
+
+        texToDepthShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_tex_to_depth_fs);
     }
 }
 
@@ -195,8 +196,7 @@ void UnloadShaders() {
     UnloadShader(gBufferShader);
     UnloadShader(depthDisplayShader);
     UnloadShader(addShader);
-    UnloadShader(bloomShaderHorizontal);
-    UnloadShader(bloomShaderVertical);
+    UnloadShader(blurGaussShader);
     UnloadShader(skyboxShader);
     UnloadShader(flipYShader);
     UnloadShader(pointShader);
@@ -214,10 +214,8 @@ Shader GetShader(EmbeddedShader shade) {
         return depthDisplayShader;
     case SHADER_ADD:
         return addShader;
-    case SHADER_BLUR_HOR:
-        return bloomShaderHorizontal;
-    case SHADER_BLUR_VERT:
-        return bloomShaderVertical;
+    case SHADER_BLUR_GAUSS:
+        return blurGaussShader;
     case SHADER_BLUR_BOX:
         return blurBoxShader;
     case SHADER_SKYBOX:
@@ -240,6 +238,8 @@ Shader GetShader(EmbeddedShader shade) {
         return prefilterShader;
     case SHADER_SSAO:
         return ssaoShader;
+    case SHADER_TEX_TO_DEPTH:
+        return texToDepthShader;
     }
     return LoadMaterialDefault().shader;
 }

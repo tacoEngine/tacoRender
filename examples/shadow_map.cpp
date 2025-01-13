@@ -20,13 +20,16 @@ int main() {
     Init3D();
 
     Camera3D camera = (Camera3D) {
-        .position = (Vector3) {-2, 0, 0}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
+        .position = (Vector3) {-0.5, 1, 2}, .target = (Vector3) {0.5, 0, 2}, .up = (Vector3) {
             0, 1, 0
         },
         .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
     };
 
-    Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, BLUE));
+    Texture red = LoadTextureFromImage(GenImageColor(1, 1, RED));
+    Texture green = LoadTextureFromImage(GenImageColor(1, 1, GREEN));
+    Texture blue = LoadTextureFromImage(GenImageColor(1, 1, BLUE));
+
     Texture normal = LoadTextureFromImage(GenImageColor(1, 1, (Color) {128, 128, 255, 255}));
     Texture height = LoadTextureFromImage(GenImageColor(1, 1, BLACK));
     Texture metallic = LoadTextureFromImage(GenImageColor(1, 1, GRAY));
@@ -36,7 +39,7 @@ int main() {
 
     Model sphere = LoadModelFromMesh(GenMeshSphere(1, 50, 50));
     sphere.materials[0].shader = GetGBufferShader();
-    sphere.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
+    sphere.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = red;
     sphere.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
     sphere.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
     sphere.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
@@ -46,7 +49,7 @@ int main() {
 
     Model box = LoadModelFromMesh(GenMeshCube(1, 1, 1));
     box.materials[0].shader = GetGBufferShader();
-    box.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
+    box.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = green;
     box.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
     box.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
     box.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
@@ -56,7 +59,7 @@ int main() {
 
     Model plane = LoadModelFromMesh(GenMeshCube(100, 1, 100));
     plane.materials[0].shader = GetGBufferShader();
-    plane.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = albedo;
+    plane.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = blue;
     plane.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normal;
     plane.materials[0].maps[MATERIAL_MAP_HEIGHT].texture = height;
     plane.materials[0].maps[MATERIAL_MAP_METALNESS].texture = metallic;
@@ -70,7 +73,7 @@ int main() {
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
-    ShadowMap shadow_map = LoadShadowMap(2048, CASCADE_COUNT, 1000);
+    ShadowMap shadowMap = LoadShadowMap(2048, CASCADE_COUNT, 1000);
 
     DisableCursor();
 
@@ -94,7 +97,7 @@ int main() {
         }
 
         for (int i = 0; i < CASCADE_COUNT; i++) {
-            BeginShadowMap(shadow_map, camera, (Vector3) {1, -1, 0}, i);
+            BeginShadowMap(shadowMap, camera, (Vector3) {1, -1, 0}, i);
 
             ClearBackground(BLANK);
 
@@ -105,6 +108,8 @@ int main() {
             EndShadowMap();
         }
 
+        FilterShadowMap(shadowMap);
+
         ClearPresenter(presenter);
 
         { // Shade scene
@@ -112,7 +117,7 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, YELLOW, shadow_map);
+            LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, WHITE, shadowMap);
 
             EndLightingPass();
         }
@@ -124,7 +129,6 @@ int main() {
         ClearBackground(BLANK);
 
         DrawTexture(presenter.target.texture, 0, 0, WHITE);
-
         EndDrawing();
     }
 

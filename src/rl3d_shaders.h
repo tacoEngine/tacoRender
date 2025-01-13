@@ -19,8 +19,7 @@ typedef enum EmbeddedShader {
     SHADER_GBUF,
     SHADER_DEPTH_DISPLAY,
     SHADER_ADD,
-    SHADER_BLUR_HOR,
-    SHADER_BLUR_VERT,
+    SHADER_BLUR_GAUSS,
     SHADER_BLUR_BOX,
     SHADER_SKYBOX,
     SHADER_FLIP_Y,
@@ -32,6 +31,7 @@ typedef enum EmbeddedShader {
     SHADER_IRRADIANCE,
     SHADER_PREFILTER,
     SHADER_SSAO,
+    SHADER_TEX_TO_DEPTH,
 } EmbeddedShader;
 
 void LoadShaders();
