@@ -83,7 +83,7 @@ GBuffers LoadGBuffers(int width, int height) {
     return target;
 }
 
-RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool useRenderBuffer) {
+RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool depthless, bool useRenderBuffer) {
     RenderTexture2D target = {0};
 
     target.id = rlLoadFramebuffer();
@@ -97,14 +97,20 @@ RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool us
         target.texture.format = format;
         target.texture.mipmaps = 1;
 
-        target.depth.id = rlLoadTextureDepth(width, height, useRenderBuffer);
-        target.depth.width = width;
-        target.depth.height = height;
-        target.depth.format = 19;
-        target.depth.mipmaps = 1;
+        if (!depthless) {
+            target.depth.id = rlLoadTextureDepth(width, height, useRenderBuffer);
+            target.depth.width = width;
+            target.depth.height = height;
+            target.depth.format = 19;
+            target.depth.mipmaps = 1;
+            rlFramebufferAttach(target.id,
+                                target.depth.id,
+                                RL_ATTACHMENT_DEPTH,
+                                useRenderBuffer ? RL_ATTACHMENT_RENDERBUFFER : RL_ATTACHMENT_TEXTURE2D,
+                                0);
+        }
 
         rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, useRenderBuffer ? RL_ATTACHMENT_RENDERBUFFER: RL_ATTACHMENT_TEXTURE2D, 0);
 
         if (rlFramebufferComplete(target.id))
             TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
@@ -118,10 +124,22 @@ RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool us
 
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
-    presenter.target = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.target = LoadCustomRenderTexture(buffers.width,
+                                               buffers.height,
+                                               PIXELFORMAT_UNCOMPRESSED_R16G16B16,
+                                               false,
+                                               true);
     // Todo: Make back buffer depthless
-    presenter.back[0] = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
-    presenter.back[1] = LoadCustomRenderTexture(buffers.width, buffers.height, PIXELFORMAT_UNCOMPRESSED_R16G16B16, true);
+    presenter.back[0] = LoadCustomRenderTexture(buffers.width,
+                                                buffers.height,
+                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16,
+                                                false,
+                                                true);
+    presenter.back[1] = LoadCustomRenderTexture(buffers.width,
+                                                buffers.height,
+                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16,
+                                                false,
+                                                true);
     presenter.source = buffers;
 
     presenter.occlusion.id = rlLoadFramebuffer();
@@ -137,8 +155,16 @@ GBufferPresenter LoadPresenter(GBuffers buffers) {
         presenter.occlusion.depth.format = 19;
         presenter.occlusion.depth.mipmaps = 1;
 
-        rlFramebufferAttach(presenter.occlusion.id, buffers.ao.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(presenter.occlusion.id, presenter.occlusion.depth.id, RL_ATTACHMENT_DEPTH,  RL_ATTACHMENT_RENDERBUFFER, 0);
+        rlFramebufferAttach(presenter.occlusion.id,
+                            buffers.ao.id,
+                            RL_ATTACHMENT_COLOR_CHANNEL0,
+                            RL_ATTACHMENT_TEXTURE2D,
+                            0);
+        rlFramebufferAttach(presenter.occlusion.id,
+                            presenter.occlusion.depth.id,
+                            RL_ATTACHMENT_DEPTH,
+                            RL_ATTACHMENT_RENDERBUFFER,
+                            0);
 
         if (rlFramebufferComplete(presenter.occlusion.id))
             TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);

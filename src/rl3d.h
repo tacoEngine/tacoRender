@@ -40,7 +40,7 @@ void Uninit3D();
 
 GBuffers LoadGBuffers(int width, int height);
 
-RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool useRenderBuffer);
+RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool depthless, bool useRenderBuffer);
 
 GBufferPresenter LoadPresenter(GBuffers buffers);
 
