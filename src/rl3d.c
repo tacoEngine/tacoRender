@@ -36,7 +36,7 @@ Texture LoadEmptyTexture(int width, int height, PixelFormat format) {
 GBuffers LoadGBuffers(int width, int height) {
     GBuffers target = {0};
 
-    target.id = rlLoadFramebuffer();   // Load an empty framebuffer
+    target.id = rlLoadFramebuffer(); // Load an empty framebuffer
     target.width = width;
     target.height = height;
 
@@ -56,7 +56,7 @@ GBuffers LoadGBuffers(int width, int height) {
         target.depth.id = rlLoadTextureDepth(width, height, false);
         target.depth.width = width;
         target.depth.height = height;
-        target.depth.format = 19;       //DEPTH_COMPONENT_24BIT?
+        target.depth.format = 19; //DEPTH_COMPONENT_24BIT?
         target.depth.mipmaps = 1;
 
         rlActiveDrawBuffers(6);

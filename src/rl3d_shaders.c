@@ -29,6 +29,7 @@ static Shader sssPointShader = {0};
 static Shader ssaoShader = {0};
 static Shader texToDepthShader = {0};
 
+// @formatter:off
 const char rl3d_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
     , '\0'
@@ -123,6 +124,8 @@ const char rl3d_tex_to_depth_fs[] = {
 #embed "shaders/tex_to_depth.fs.glsl"
     , '\0'
 };
+
+// @formatter:on
 
 void LoadShaders() {
     if (gBufferShader.id == 0) {

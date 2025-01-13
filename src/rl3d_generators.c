@@ -41,11 +41,11 @@ TextureCubemap PrefilterCubemap(TextureCubemap cubemap) {
 
 // Generate cubemap texture from HDR texture
 static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int mipmapCount) {
-    TextureCubemap cubemap = { 0 };
+    TextureCubemap cubemap = {0};
 
     int mipmapLevelLoc = GetShaderLocation(shader, "mipmapLevel");
     int maxMipmapLevelLoc = GetShaderLocation(shader, "maxMipmapLevel");
-    SetShaderValue(shader, GetShaderLocation(shader, "cubemap"), (int[1]){ 0 }, SHADER_UNIFORM_INT);
+    SetShaderValue(shader, GetShaderLocation(shader, "cubemap"), (int[1]) {0}, SHADER_UNIFORM_INT);
 
     rlDisableBackfaceCulling(); // Disable backface culling to render inside the cube
 
@@ -63,17 +63,17 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
     rlEnableShader(shader.id);
 
     // Define projection matrix and send it to shader
-    Matrix matFboProjection = MatrixPerspective(90.0*DEG2RAD, 1.0, rlGetCullDistanceNear(), rlGetCullDistanceFar());
+    Matrix matFboProjection = MatrixPerspective(90.0 * DEG2RAD, 1.0, rlGetCullDistanceNear(), rlGetCullDistanceFar());
     rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_PROJECTION], matFboProjection);
 
     // Define view matrix for every side of the cubemap
     Matrix fboViews[6] = {
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){  1.0f,  0.0f,  0.0f }, (Vector3){ 0.0f, -1.0f,  0.0f }),
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){ -1.0f,  0.0f,  0.0f }, (Vector3){ 0.0f, -1.0f,  0.0f }),
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){  0.0f,  1.0f,  0.0f }, (Vector3){ 0.0f,  0.0f,  1.0f }),
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){  0.0f, -1.0f,  0.0f }, (Vector3){ 0.0f,  0.0f, -1.0f }),
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){  0.0f,  0.0f,  1.0f }, (Vector3){ 0.0f, -1.0f,  0.0f }),
-        MatrixLookAt((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector3){  0.0f,  0.0f, -1.0f }, (Vector3){ 0.0f, -1.0f,  0.0f })
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {1.0f, 0.0f, 0.0f}, (Vector3) {0.0f, -1.0f, 0.0f}),
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {-1.0f, 0.0f, 0.0f}, (Vector3) {0.0f, -1.0f, 0.0f}),
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {0.0f, 1.0f, 0.0f}, (Vector3) {0.0f, 0.0f, 1.0f}),
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {0.0f, -1.0f, 0.0f}, (Vector3) {0.0f, 0.0f, -1.0f}),
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {0.0f, 0.0f, 1.0f}, (Vector3) {0.0f, -1.0f, 0.0f}),
+        MatrixLookAt((Vector3) {0.0f, 0.0f, 0.0f}, (Vector3) {0.0f, 0.0f, -1.0f}, (Vector3) {0.0f, -1.0f, 0.0f})
     };
 
     // Activate and enable texture for drawing to cubemap faces
@@ -91,7 +91,7 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipmapSize, mipmapSize);
         rlViewport(0, 0, mipmapSize, mipmapSize);
 
-        if(mipmapLevelLoc >= 0)
+        if (mipmapLevelLoc >= 0)
             SetShaderValue(shader, mipmapLevelLoc, &mip, SHADER_UNIFORM_INT);
 
         for (int i = 0; i < 6; ++i) {
@@ -100,7 +100,11 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
 
             // Select the current cubemap face attachment for the fbo
             // WARNING: This function by default enables->attach->disables fbo!!!
-            rlFramebufferAttach(fbo, cubemap.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_CUBEMAP_POSITIVE_X + i, mip);
+            rlFramebufferAttach(fbo,
+                                cubemap.id,
+                                RL_ATTACHMENT_COLOR_CHANNEL0,
+                                RL_ATTACHMENT_CUBEMAP_POSITIVE_X + i,
+                                mip);
             rlEnableFramebuffer(fbo);
 
             // Load and draw a cube, it uses the current enabled texture
@@ -110,10 +114,10 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
         mipmapSize /= 2;
     }
 
-    rlDisableShader();          // Unbind shader
-    rlDisableTextureCubemap();         // Unbind texture
-    rlDisableFramebuffer();     // Unbind framebuffer
-    rlUnloadFramebuffer(fbo);   // Unload framebuffer (and automatically attached depth texture/renderbuffer)
+    rlDisableShader(); // Unbind shader
+    rlDisableTextureCubemap(); // Unbind texture
+    rlDisableFramebuffer(); // Unbind framebuffer
+    rlUnloadFramebuffer(fbo); // Unload framebuffer (and automatically attached depth texture/renderbuffer)
 
     // Reset viewport dimensions to default
     rlViewport(0, 0, rlGetFramebufferWidth(), rlGetFramebufferHeight());

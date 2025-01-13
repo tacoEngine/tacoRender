@@ -321,8 +321,7 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
             TRACELOG(LOG_WARNING, "FBO: [ID %i] Framebuffer object creation incomplete", target.id);
 
         rlDisableFramebuffer();
-    }
-    else
+    } else
         TRACELOG(LOG_WARNING, "FBO: Framebuffer object can not be created");
 
     return target;
@@ -358,7 +357,7 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
     if (cascade == 0)
         previousCascade = 1.f;
     else
-        previousCascade = -shadowMap.dists[cascade-1];
+        previousCascade = -shadowMap.dists[cascade - 1];
     float nextCascade = -shadowMap.dists[cascade];
 
     float aspectRatio = (float) GetScreenHeight() / (float) GetScreenWidth();
@@ -459,6 +458,7 @@ Skybox LoadSkybox(const char *filename) {
 }
 
 Skybox LoadSkyboxImage(Image image) {
+    // @formatter:off
     float vertices[] = {
         -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
         1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
@@ -468,6 +468,7 @@ Skybox LoadSkyboxImage(Image image) {
         1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
         1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f,
     };
+    // @formatter:on
 
     Mesh mesh = (Mesh) {0};
     mesh.vertices = vertices;
@@ -606,7 +607,8 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
 
 const char rl3d_brdf_lut[] = {
 #embed "assets/brdf.png"
-    , '\0'
+    ,
+    '\0'
 };
 
 void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance, TextureCubemap irradiance) {
