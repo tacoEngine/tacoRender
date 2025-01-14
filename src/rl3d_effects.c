@@ -449,8 +449,6 @@ void FilterShadowMap(ShadowMap shadowMap) {
         BeginShaderMode(GetShader(SHADER_TEX_TO_DEPTH));
         DrawTexture(shadowMap.back[0].texture, 0, 0, WHITE);
         EndTextureMode();
-
-        break;
     }
 }
 
