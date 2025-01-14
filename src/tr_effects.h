@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,12 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef RL3D_SRC_RL3D_EFFECTS_H_
-#define RL3D_SRC_RL3D_EFFECTS_H_
+#ifndef TR_EFFECTS_H
+#define TR_EFFECTS_H
 
 #include <raylib.h>
 
-#include "rl3d.h"
+#include "tacoRender.h"
 
 #include <stddef.h>
 
@@ -77,4 +77,4 @@ void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance
 }
 #endif
 
-#endif //RL3D_SRC_RL3D_EFFECTS_H_
+#endif //TR_EFFECTS_H

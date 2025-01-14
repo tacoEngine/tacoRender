@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef RL3D_SRC_RL3D_SHADERS_H_
-#define RL3D_SRC_RL3D_SHADERS_H_
+#ifndef TR_SHADERS_H
+#define TR_SHADERS_H
 
 #include <raylib.h>
 
@@ -42,4 +42,4 @@ Shader GetShader(EmbeddedShader shade);
 }
 #endif
 
-#endif //RL3D_SRC_RL3D_SHADERS_H_
+#endif //TR_SHADERS_H

@@ -1,9 +1,9 @@
-// rl3d (c) Nikolas Wipper 2024
+// tacoRender (c) Nikolas Wipper 2024
 
-#ifndef RL3D_GENERATORS_H
-#define RL3D_GENERATORS_H
+#ifndef TR_GENERATORS_H
+#define TR_GENERATORS_H
 
-#include "rl3d.h"
+#include "tacoRender.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,4 +16,4 @@ TextureCubemap IrradianceCubemap(TextureCubemap cubemap);
 }
 #endif
 
-#endif //RL3D_GENERATORS_H
+#endif //TR_GENERATORS_H

@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2024
+// tacoRender (c) Nikolas Wipper 2024
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,20 +6,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include <rl3d.h>
-#include <rl3d_effects.h>
+#include <tacoRender.h>
+#include <tr_effects.h>
 
 #include <rlgl.h>
 #include <external/glad.h>
 
-#include "rl3d_generators.h"
+#include "tr_generators.h"
 
 int main() {
     SetTargetFPS(60);
 
     const int screenWidth = 1000, screenHeight = 800;
 
-    InitWindow(screenWidth, screenHeight, "rl3d emissions sphere");
+    InitWindow(screenWidth, screenHeight, "tacoRender emissions sphere");
     Init3D();
 
     Camera3D camera = (Camera3D){

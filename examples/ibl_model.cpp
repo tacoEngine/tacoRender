@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,8 +7,8 @@
  */
 
 #include <cstdio>
-#include <rl3d.h>
-#include <rl3d_effects.h>
+#include <tacoRender.h>
+#include <tr_effects.h>
 
 #include "raymath.h"
 
@@ -17,7 +17,7 @@ int main() {
 
     const int screenWidth = 500, screenHeight = 500;
 
-    InitWindow(screenWidth, screenHeight, "rl3d emissions sphere");
+    InitWindow(screenWidth, screenHeight, "tacoRender emissions sphere");
     Init3D();
 
     Camera3D camera = (Camera3D){

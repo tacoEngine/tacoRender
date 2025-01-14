@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef RL3D_SRC_RL3D_H_
-#define RL3D_SRC_RL3D_H_
+#ifndef TACORENDER_H
+#define TACORENDER_H
 
 #include <raylib.h>
 
@@ -63,4 +63,4 @@ void DrawDepth(Texture2D texture, Vector2 position, float rotation, float scale,
 }
 #endif
 
-#endif //RL3D_SRC_RL3D_H_
+#endif //TACORENDER_H

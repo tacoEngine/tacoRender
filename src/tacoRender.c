@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,9 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "rl3d.h"
+#include "tacoRender.h"
 
-#include "rl3d_shaders.h"
+#include "tr_shaders.h"
 
 #include <rlgl.h>
 #include <stddef.h>

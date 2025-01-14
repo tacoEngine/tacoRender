@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,15 +6,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include <rl3d.h>
-#include <rl3d_effects.h>
+#include <tacoRender.h>
+#include <tr_effects.h>
 
 int main() {
     SetTargetFPS(60);
 
     const int screenWidth = 1000, screenHeight = 800;
 
-    InitWindow(screenWidth, screenHeight, "rl3d hdr plane");
+    InitWindow(screenWidth, screenHeight, "tacoRender hdr plane");
     Init3D();
 
     Camera3D camera = (Camera3D) {

@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,13 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include <rl3d.h>
+#include <tacoRender.h>
 #include <raylib.h>
 
 int main() {
     SetTargetFPS(60);
 
-    InitWindow(500, 500, "rl3d gbuffer sphere");
+    InitWindow(500, 500, "tacoRender gbuffer sphere");
     Init3D();
 
     Camera3D camera = (Camera3D) {

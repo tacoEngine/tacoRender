@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,10 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "rl3d_effects.h"
+#include "tr_effects.h"
 
-#include "rl3d.h"
-#include "rl3d_shaders.h"
+#include "tacoRender.h"
+#include "tr_shaders.h"
 
 #include <rlgl.h>
 #include <raymath.h>
@@ -604,7 +604,7 @@ void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, floa
     }
 }
 
-const char rl3d_brdf_lut[] = {
+const char tr_brdf_lut[] = {
 #embed "assets/brdf.png"
     ,
     '\0'
@@ -615,7 +615,7 @@ void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance
     static Texture brdf;
     if (ibl.id == 0) {
         ibl = GetShader(SHADER_IBL);
-        brdf = LoadTextureFromImage(LoadImageFromMemory(".png", rl3d_brdf_lut, sizeof(rl3d_brdf_lut)));
+        brdf = LoadTextureFromImage(LoadImageFromMemory(".png", tr_brdf_lut, sizeof(tr_brdf_lut)));
     }
 
     unsigned int ids[] = {radiance.id, irradiance.id};

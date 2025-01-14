@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-project(rl3d)
+project(tacoRender)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD 17)
@@ -10,45 +10,45 @@ set(SUPPORT_FILEFORMAT_HDR ON)
 set(SUPPORT_FILEFORMAT_JPG ON)
 add_subdirectory(raylib)
 
-add_library(rl3d
-        src/rl3d.c
-        src/rl3d.h
-        src/rl3d_shaders.c
-        src/rl3d_shaders.h
-        src/rl3d_effects.c
-        src/rl3d_effects.h
-        src/rl3d_generators.c
-        src/rl3d_generators.h
+add_library(tacoRender
+        src/tacoRender.c
+        src/tacoRender.h
+        src/tr_shaders.c
+        src/tr_shaders.h
+        src/tr_effects.c
+        src/tr_effects.h
+        src/tr_generators.c
+        src/tr_generators.h
 )
-target_link_libraries(rl3d raylib)
-target_include_directories(rl3d PUBLIC src)
+target_link_libraries(tacoRender raylib)
+target_include_directories(tacoRender PUBLIC src)
 
-add_executable(rl3d_gbuffer_sphere examples/gbuffer_sphere.cpp)
-target_link_libraries(rl3d_gbuffer_sphere rl3d)
+add_executable(tr_gbuffer_sphere examples/gbuffer_sphere.cpp)
+target_link_libraries(tr_gbuffer_sphere tacoRender)
 
-add_executable(rl3d_skybox examples/skybox.cpp)
-target_link_libraries(rl3d_skybox rl3d)
+add_executable(tr_skybox examples/skybox.cpp)
+target_link_libraries(tr_skybox tacoRender)
 
-add_executable(rl3d_lit_sphere examples/lit_sphere.cpp)
-target_link_libraries(rl3d_lit_sphere rl3d)
+add_executable(tr_lit_sphere examples/lit_sphere.cpp)
+target_link_libraries(tr_lit_sphere tacoRender)
 
-add_executable(rl3d_hdr_plane examples/hdr_plane.cpp)
-target_link_libraries(rl3d_hdr_plane rl3d)
+add_executable(tr_hdr_plane examples/hdr_plane.cpp)
+target_link_libraries(tr_hdr_plane tacoRender)
 
-add_executable(rl3d_pbr_sphere examples/pbr_sphere.cpp)
-target_link_libraries(rl3d_pbr_sphere rl3d)
+add_executable(tr_pbr_sphere examples/pbr_sphere.cpp)
+target_link_libraries(tr_pbr_sphere tacoRender)
 
-add_executable(rl3d_ibl_spheres examples/ibl_spheres.cpp)
-target_link_libraries(rl3d_ibl_spheres rl3d)
+add_executable(tr_ibl_spheres examples/ibl_spheres.cpp)
+target_link_libraries(tr_ibl_spheres tacoRender)
 
-add_executable(rl3d_ibl_model examples/ibl_model.cpp)
-target_link_libraries(rl3d_ibl_model rl3d)
+add_executable(tr_ibl_model examples/ibl_model.cpp)
+target_link_libraries(tr_ibl_model tacoRender)
 
-add_executable(rl3d_cubemap_gen examples/cubemap_generation.cpp)
-target_link_libraries(rl3d_cubemap_gen rl3d)
+add_executable(tr_cubemap_gen examples/cubemap_generation.cpp)
+target_link_libraries(tr_cubemap_gen tacoRender)
 
-add_executable(rl3d_shadowmap examples/shadow_map.cpp)
-target_link_libraries(rl3d_shadowmap rl3d)
+add_executable(tr_shadowmap examples/shadow_map.cpp)
+target_link_libraries(tr_shadowmap tacoRender)
 
-add_executable(rl3d_monkey_ao examples/monkey_ao.cpp)
-target_link_libraries(rl3d_monkey_ao rl3d)
+add_executable(tr_monkey_ao examples/monkey_ao.cpp)
+target_link_libraries(tr_monkey_ao tacoRender)

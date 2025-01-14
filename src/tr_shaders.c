@@ -1,4 +1,4 @@
-// rl3d (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "rl3d_shaders.h"
+#include "tr_shaders.h"
 
 #include <raylib.h>
 #include <stddef.h>
@@ -30,97 +30,97 @@ static Shader ssaoShader = {0};
 static Shader texToDepthShader = {0};
 
 // @formatter:off
-const char rl3d_gbuf_vs[] = {
+const char tr_gbuf_vs[] = {
 #embed "shaders/gbuf.vs.glsl"
     , '\0'
 };
 
-const char rl3d_gbuf_fs[] = {
+const char tr_gbuf_fs[] = {
 #embed "shaders/gbuf.fs.glsl"
     , '\0'
 };
 
-const char rl3d_flip_vs[] = {
+const char tr_flip_vs[] = {
 #embed "shaders/flip.vs.glsl"
     , '\0'
 };
 
-const char rl3d_depth_display_fs[] = {
+const char tr_depth_display_fs[] = {
 #embed "shaders/depth_display.fs.glsl"
     , '\0'
 };
 
-const char rl3d_add_fs[] = {
+const char tr_add_fs[] = {
 #embed "shaders/add.fs.glsl"
     , '\0'
 };
 
-const char rl3d_blur_gauss_fs[] = {
+const char tr_blur_gauss_fs[] = {
 #embed "shaders/blur_gauss.fs.glsl"
     , '\0'
 };
 
-const char rl3d_blur_box_fs[] = {
+const char tr_blur_box_fs[] = {
 #embed "shaders/blur_box.fs.glsl"
     , '\0'
 };
 
-const char rl3d_skybox_vs[] = {
+const char tr_skybox_vs[] = {
 #embed "shaders/skybox.vs.glsl"
     , '\0'
 };
 
-const char rl3d_skybox_fs[] = {
+const char tr_skybox_fs[] = {
 #embed "shaders/skybox.fs.glsl"
     , '\0'
 };
 
-const char rl3d_point_fs[] = {
+const char tr_point_fs[] = {
 #embed "shaders/point.fs.glsl"
     , '\0'
 };
 
-const char rl3d_sun_fs[] = {
+const char tr_sun_fs[] = {
 #embed "shaders/sun.fs.glsl"
     , '\0'
 };
 
-const char rl3d_ibl_fs[] = {
+const char tr_ibl_fs[] = {
 #embed "shaders/ibl.fs.glsl"
     , '\0'
 };
 
-const char rl3d_gamma_fs[] = {
+const char tr_gamma_fs[] = {
 #embed "shaders/gamma.fs.glsl"
     , '\0'
 };
 
-const char rl3d_tone_map_reinhard[] = {
+const char tr_tone_map_reinhard[] = {
 #embed "shaders/tone_map_reinhard.fs.glsl"
     , '\0'
 };
 
-const char rl3d_cubemap_vs[] = {
+const char tr_cubemap_vs[] = {
 #embed "shaders/cubemap.vs.glsl"
     , '\0'
 };
 
-const char rl3d_irradiance_fs[] = {
+const char tr_irradiance_fs[] = {
 #embed "shaders/irradiance.fs.glsl"
     , '\0'
 };
 
-const char rl3d_prefilter_fs[] = {
+const char tr_prefilter_fs[] = {
 #embed "shaders/prefilter.fs.glsl"
     , '\0'
 };
 
-const char rl3d_ssao_fs[] = {
+const char tr_ssao_fs[] = {
 #embed "shaders/ssao.fs.glsl"
     , '\0'
 };
 
-const char rl3d_tex_to_depth_fs[] = {
+const char tr_tex_to_depth_fs[] = {
 #embed "shaders/tex_to_depth.fs.glsl"
     , '\0'
 };
@@ -129,7 +129,7 @@ const char rl3d_tex_to_depth_fs[] = {
 
 void LoadShaders() {
     if (gBufferShader.id == 0) {
-        gBufferShader = LoadShaderFromMemory(rl3d_gbuf_vs, rl3d_gbuf_fs);
+        gBufferShader = LoadShaderFromMemory(tr_gbuf_vs, tr_gbuf_fs);
         gBufferShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(gBufferShader, "albedoMap");
         gBufferShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(gBufferShader, "normalMap");
         gBufferShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(gBufferShader, "heightMap");
@@ -138,17 +138,17 @@ void LoadShaders() {
         gBufferShader.locs[SHADER_LOC_MAP_EMISSION] = GetShaderLocation(gBufferShader, "emissionMap");
         gBufferShader.locs[SHADER_LOC_MAP_OCCLUSION] = GetShaderLocation(gBufferShader, "occlusionMap");
 
-        depthDisplayShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_depth_display_fs);
-        addShader = LoadShaderFromMemory(NULL, rl3d_add_fs);
-        blurGaussShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_blur_gauss_fs);
-        blurBoxShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_blur_box_fs);
-        skyboxShader = LoadShaderFromMemory(rl3d_skybox_vs, rl3d_skybox_fs);
+        depthDisplayShader = LoadShaderFromMemory(tr_flip_vs, tr_depth_display_fs);
+        addShader = LoadShaderFromMemory(NULL, tr_add_fs);
+        blurGaussShader = LoadShaderFromMemory(tr_flip_vs, tr_blur_gauss_fs);
+        blurBoxShader = LoadShaderFromMemory(tr_flip_vs, tr_blur_box_fs);
+        skyboxShader = LoadShaderFromMemory(tr_skybox_vs, tr_skybox_fs);
 
         skyboxShader.locs[SHADER_LOC_MAP_CUBEMAP] = GetShaderLocation(skyboxShader, "skybox");
 
-        flipYShader = LoadShaderFromMemory(rl3d_flip_vs, NULL);
+        flipYShader = LoadShaderFromMemory(tr_flip_vs, NULL);
 
-        pointShader = LoadShaderFromMemory(NULL, rl3d_point_fs);
+        pointShader = LoadShaderFromMemory(NULL, tr_point_fs);
         pointShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(pointShader, "albedoMap");
         pointShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(pointShader, "normalMap");
         pointShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(pointShader, "metallicMap");
@@ -157,7 +157,7 @@ void LoadShaders() {
         pointShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(pointShader, "depth");
         pointShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(pointShader, "camPos");
 
-        sunShader = LoadShaderFromMemory(NULL, rl3d_sun_fs);
+        sunShader = LoadShaderFromMemory(NULL, tr_sun_fs);
         sunShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(sunShader, "albedoMap");
         sunShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(sunShader, "normalMap");
         sunShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(sunShader, "metallicMap");
@@ -166,7 +166,7 @@ void LoadShaders() {
         sunShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(sunShader, "depth");
         sunShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(sunShader, "camPos");
 
-        iblShader = LoadShaderFromMemory(NULL, rl3d_ibl_fs);
+        iblShader = LoadShaderFromMemory(NULL, tr_ibl_fs);
         iblShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(iblShader, "albedoMap");
         iblShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(iblShader, "normalMap");
         iblShader.locs[SHADER_LOC_MAP_METALNESS] = GetShaderLocation(iblShader, "metallicMap");
@@ -179,19 +179,19 @@ void LoadShaders() {
         iblShader.locs[SHADER_LOC_MAP_BRDF] = GetShaderLocation(iblShader, "brdfLUT");
         iblShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(iblShader, "camPos");
 
-        gammaShader = LoadShaderFromMemory(NULL, rl3d_gamma_fs);
+        gammaShader = LoadShaderFromMemory(NULL, tr_gamma_fs);
 
-        toneMapReinhardShader = LoadShaderFromMemory(NULL, rl3d_tone_map_reinhard);
+        toneMapReinhardShader = LoadShaderFromMemory(NULL, tr_tone_map_reinhard);
 
-        irradianceShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_irradiance_fs);
+        irradianceShader = LoadShaderFromMemory(tr_cubemap_vs, tr_irradiance_fs);
 
-        prefilterShader = LoadShaderFromMemory(rl3d_cubemap_vs, rl3d_prefilter_fs);
+        prefilterShader = LoadShaderFromMemory(tr_cubemap_vs, tr_prefilter_fs);
 
-        ssaoShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_ssao_fs);
+        ssaoShader = LoadShaderFromMemory(tr_flip_vs, tr_ssao_fs);
         ssaoShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(ssaoShader, "normalMap");
         ssaoShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(ssaoShader, "depth");
 
-        texToDepthShader = LoadShaderFromMemory(rl3d_flip_vs, rl3d_tex_to_depth_fs);
+        texToDepthShader = LoadShaderFromMemory(tr_flip_vs, tr_tex_to_depth_fs);
     }
 }
 

@@ -1,12 +1,12 @@
-// rl3d (c) Nikolas Wipper 2024
+// tacoRender (c) Nikolas Wipper 2024
 
-#include "rl3d_generators.h"
+#include "tr_generators.h"
 
 #include <rlgl.h>
 #include <raymath.h>
 #include <external/glad.h>
 
-#include "rl3d_shaders.h"
+#include "tr_shaders.h"
 
 static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int mipmapCount);
 
