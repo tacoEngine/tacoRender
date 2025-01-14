@@ -1,4 +1,4 @@
-// tacoRender (c) Nikolas Wipper 2023
+// tacoRender (c) Nikolas Wipper 2023-2025
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
