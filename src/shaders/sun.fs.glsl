@@ -133,7 +133,6 @@ void main() {
     float lightAngle = max(dot(lightDir, normal), 0.0);
 
     float shadowFactor = 1.0;
-    vec3 cascadeColor = vec3(0);
 
     for (int i = 0; i < cascadeCount; i++) {
         if (linearDist <= cascadeDists[i]) {

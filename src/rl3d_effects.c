@@ -407,7 +407,8 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
         maxZ = fmaxf(maxZ, lightCoordinate.z);
     }
 
-    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, minZ, maxZ);
+    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, maxZ, minZ);
+    lightProj.m10 *= -1;
 
     rlSetMatrixProjection(lightProj);
     rlSetMatrixModelview(lightView);

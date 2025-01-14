@@ -70,10 +70,11 @@ int main() {
     box.transform = MatrixRotateY(45);
 
     const int CASCADE_COUNT = 3;
+    const Vector3 lightDirection = {1, -1, 0};
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
-    ShadowMap shadowMap = LoadShadowMap(2048, CASCADE_COUNT, 1000);
+    ShadowMap shadowMap = LoadShadowMap(2048, CASCADE_COUNT, 100);
 
     DisableCursor();
 
@@ -87,8 +88,12 @@ int main() {
 
             BeginMode3D(camera);
 
-            DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
-            DrawModel(box, (Vector3) {0, 0, 4}, 1, WHITE);
+            for (float x = -20; x < 20; x += 4) {
+                for (float z = -20; z < 20; z += 8) {
+                    DrawModel(sphere, (Vector3) {x, 0, z}, 1, WHITE);
+                    DrawModel(box, (Vector3) {x, 0, z + 4}, 1, WHITE);
+                }
+            }
             DrawModel(plane, (Vector3) {0, -1, 0}, 1, WHITE);
 
             EndMode3D();
@@ -97,12 +102,17 @@ int main() {
         }
 
         for (int i = 0; i < CASCADE_COUNT; i++) {
-            BeginShadowMap(shadowMap, camera, (Vector3) {1, -1, 0}, i);
+            BeginShadowMap(shadowMap, camera, lightDirection, i);
 
             ClearBackground(BLANK);
 
-            DrawModel(sphere, (Vector3) {0, 0, 0}, 1, WHITE);
-            DrawModel(box, (Vector3) {0, 0, 4}, 1, WHITE);
+            for (float x = -20; x < 20; x += 4) {
+                for (float z = -20; z < 20; z += 8) {
+                    DrawModel(sphere, (Vector3) {x, 0, z}, 1, WHITE);
+                    DrawModel(box, (Vector3) {x, 0, z + 4}, 1, WHITE);
+                }
+            }
+
             DrawModel(plane, (Vector3) {0, -1, 0}, 1, WHITE);
 
             EndShadowMap();
@@ -117,7 +127,7 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightSun(presenter, camera, (Vector3) {1, -1, 0}, 1, WHITE, shadowMap);
+            LightSun(presenter, camera, lightDirection, 1, WHITE, shadowMap);
 
             EndLightingPass();
         }
