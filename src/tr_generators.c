@@ -58,13 +58,9 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
     unsigned int fbo = rlLoadFramebuffer();
     unsigned int rbo = rlLoadTextureDepth(size, size, true);
 
-    cubemap.id = rlLoadTextureCubemap(0, size, panorama.format, 1);;
+    cubemap.id = rlLoadTextureCubemap(0, size, panorama.format, mipmapCount);
 
     rlCubemapParameters(cubemap.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_MIP_LINEAR);
-
-    rlEnableTextureCubemap(cubemap.id);
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-    rlDisableTextureCubemap();
 
     rlEnableShader(shader.id);
 
