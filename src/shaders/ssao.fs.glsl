@@ -78,6 +78,9 @@ vec3(-0.000688899, 0.000160498, 0.00043486),
 vec3(-0.151823, 0.190876, 0.324663)
 );
 
+// Biggest number less than 1 (one) representable with IEEE754 (or really close to it)
+const float maxDist = 0.999999940395355224609375;
+
 vec3 ViewPosFromDepth(float depth) {
     float z = depth * 2.0 - 1.0;
     vec4 clipSpacePosition = vec4(fragTexCoord * 2.0 - 1.0, z, 1.0);
@@ -94,7 +97,7 @@ float random(vec3 seed, uint i){
 
 void main() {
     float dist = texture(depth, fragTexCoord).r;
-    if (dist == 1) discard;
+    if (dist >= maxDist) discard;
     vec3 viewPos = ViewPosFromDepth(dist);
 
     vec3 normal = normalize(texture(normalMap, fragTexCoord).rgb);

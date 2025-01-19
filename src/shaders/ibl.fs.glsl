@@ -22,6 +22,8 @@ const float CULL_NEAR = 0.01;
 const float CULL_FAR = 1000.0;
 
 const float PI = 3.14159265359;
+// Biggest number less than 1 (one) representable with IEEE754 (or really close to it)
+const float maxDist = 0.999999940395355224609375;
 
 float LinearizeDepth(float depth) {
     float z = depth * 2.0 - 1.0; // back to NDC
@@ -44,7 +46,7 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
 void main() {
     finalColor = vec4(0, 0, 0, 0);
     float dist = texture(depth, fragTexCoord).r;
-    if (dist == 1) discard;
+    if (dist >= maxDist) discard;
     vec3 worldPos = WorldPosFromDepth(dist);
 
     vec4 albedo = pow(texture(albedoMap, fragTexCoord), vec4(vec3(2.2), 1));
