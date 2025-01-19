@@ -32,6 +32,7 @@ typedef enum EmbeddedShader {
     SHADER_PREFILTER,
     SHADER_SSAO,
     SHADER_TEX_TO_DEPTH,
+    SHADER_COPY_BACKGROUND,
 } EmbeddedShader;
 
 void LoadShaders();

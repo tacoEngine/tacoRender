@@ -28,6 +28,7 @@ static Shader prefilterShader = {0};
 static Shader sssPointShader = {0};
 static Shader ssaoShader = {0};
 static Shader texToDepthShader = {0};
+static Shader copyBackgroundShader = {0};
 
 // @formatter:off
 const char tr_gbuf_vs[] = {
@@ -125,6 +126,10 @@ const char tr_tex_to_depth_fs[] = {
     , '\0'
 };
 
+const char tr_copy_background_fs[] = {
+#embed "shaders/copy_background.fs.glsl"
+    , '\0'
+};
 // @formatter:on
 
 void LoadShaders() {
@@ -192,6 +197,10 @@ void LoadShaders() {
         ssaoShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(ssaoShader, "depth");
 
         texToDepthShader = LoadShaderFromMemory(tr_flip_vs, tr_tex_to_depth_fs);
+
+        copyBackgroundShader = LoadShaderFromMemory(NULL, tr_copy_background_fs);
+        copyBackgroundShader.locs[SHADER_LOC_MAP_ALBEDO] = GetShaderLocation(copyBackgroundShader, "albedoMap");
+        copyBackgroundShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(copyBackgroundShader, "depth");
     }
 }
 
@@ -207,6 +216,7 @@ void UnloadShaders() {
     UnloadShader(gammaShader);
     UnloadShader(toneMapReinhardShader);
     UnloadShader(ssaoShader);
+    UnloadShader(copyBackgroundShader);
 }
 
 Shader GetShader(EmbeddedShader shade) {
@@ -243,6 +253,8 @@ Shader GetShader(EmbeddedShader shade) {
         return ssaoShader;
     case SHADER_TEX_TO_DEPTH:
         return texToDepthShader;
+    case SHADER_COPY_BACKGROUND:
+        return copyBackgroundShader;
     }
     return LoadMaterialDefault().shader;
 }

@@ -63,6 +63,7 @@ Skybox LoadSkyboxImage(Image image);
 void DrawSkybox(Skybox skybox, Color tint);
 
 void ShadeFlat(GBufferPresenter presenter);
+void CopyBackground(GBufferPresenter presenter);
 
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma);
 void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);

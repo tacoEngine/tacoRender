@@ -500,6 +500,10 @@ void ShadeFlat(GBufferPresenter presenter) {
     EndTextureMode();
 }
 
+void CopyBackground(GBufferPresenter presenter) {
+    RunLightShader(presenter, (Camera){}, GetShader(SHADER_COPY_BACKGROUND));
+}
+
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma) {
     static Shader gammaShader = {0};
     static int gammaLoc;
