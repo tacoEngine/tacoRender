@@ -24,14 +24,22 @@ uniform sampler2D occlusionMap;
 
 vec3 GetNormalFromMap() {
     vec3 tangentNormal = normalize(texture(normalMap, fragTexCoord).xyz * 2.0 - 1.0);
+
     vec3 Q1  = dFdx(fragPosition);
     vec3 Q2  = dFdy(fragPosition);
     vec2 st1 = dFdx(fragTexCoord);
     vec2 st2 = dFdy(fragTexCoord);
-    vec3 N   = normalize(fragNormal);
-    vec3 T   = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B   = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
+
+    vec3 tangent;
+    // Just approximate the tangent if it's not been uploaded
+    if (fragTangent == vec3(0))
+        tangent = normalize(Q1*st2.t - Q2*st1.t);
+    else
+     tangent = normalize(fragTangent);
+    vec3 normal = normalize(fragNormal);
+    vec3 bitangent = -normalize(cross(normal, tangent));
+
+    mat3 TBN = mat3(tangent, bitangent, normal);
     return normalize(TBN * tangentNormal);
 }
 
