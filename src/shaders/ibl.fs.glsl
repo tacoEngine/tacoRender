@@ -17,6 +17,7 @@ uniform mat4 invProj;
 uniform samplerCube radianceMap;
 uniform samplerCube irradianceMap;
 uniform sampler2D brdfLUT;
+uniform float radianceMaps;
 
 const float CULL_NEAR = 0.01;
 const float CULL_FAR = 1000.0;
@@ -74,12 +75,11 @@ void main() {
     vec3 diffuse = irradiance * albedo.rgb;
 
     //// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(radianceMap, viewReflect, roughness * MAX_REFLECTION_LOD).rgb;
+    vec3 prefilteredColor = textureLod(radianceMap, viewReflect, roughness * radianceMaps).rgb;
     vec2 brdf  = texture(brdfLUT, vec2(viewAngle, roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular);
+    vec3 ambient = (kD * diffuse + specular) * occlusion;
 
-    finalColor = vec4(ambient * occlusion + emission, albedo.a);
+    finalColor = vec4(ambient + emission, albedo.a);
 }

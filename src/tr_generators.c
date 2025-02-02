@@ -14,7 +14,7 @@
 
 #include "tr_shaders.h"
 
-static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int mipmapCount);
+static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int minFilter, int mipmapCount);
 
 int ilog2(int n) {
     if (n <= 0)
@@ -33,20 +33,34 @@ TextureCubemap IrradianceCubemap(TextureCubemap cubemap) {
         irradiance = GetShader(SHADER_IRRADIANCE);
     }
 
-    return GenTextureCubemap(irradiance, cubemap, 32, 1);
+    if (cubemap.mipmaps == 1) {
+        rlEnableTextureCubemap(cubemap.id);
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        rlDisableTextureCubemap();
+        rlCubemapParameters(cubemap.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_MIP_LINEAR);
+    }
+
+    return GenTextureCubemap(irradiance, cubemap, 32, RL_TEXTURE_FILTER_LINEAR, 1);
 }
 
 TextureCubemap PrefilterCubemap(TextureCubemap cubemap) {
-    static Shader irradiance = {0};
-    if (irradiance.id == 0) {
-        irradiance = GetShader(SHADER_PREFILTER);
+    static Shader prefilter = {0};
+    if (prefilter.id == 0) {
+        prefilter = GetShader(SHADER_PREFILTER);
     }
 
-    return GenTextureCubemap(irradiance, cubemap, cubemap.width, ilog2(cubemap.width) + 1);
+    if (cubemap.mipmaps == 1) {
+        rlEnableTextureCubemap(cubemap.id);
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        rlDisableTextureCubemap();
+        rlCubemapParameters(cubemap.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_MIP_LINEAR);
+    }
+
+    return GenTextureCubemap(prefilter, cubemap, cubemap.width, RL_TEXTURE_FILTER_MIP_LINEAR, ilog2(cubemap.width) + 1);
 }
 
 // Generate cubemap texture from HDR texture
-static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int mipmapCount) {
+static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, int size, int minFilter, int mipmapCount) {
     TextureCubemap cubemap = {0};
 
     int mipmapLevelLoc = GetShaderLocation(shader, "mipmapLevel");
@@ -60,12 +74,15 @@ static TextureCubemap GenTextureCubemap(Shader shader, TextureCubemap panorama, 
 
     cubemap.id = rlLoadTextureCubemap(0, size, panorama.format, mipmapCount);
 
-    rlCubemapParameters(cubemap.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_MIP_LINEAR);
+    rlCubemapParameters(cubemap.id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
+    rlCubemapParameters(cubemap.id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
+    rlCubemapParameters(cubemap.id, RL_TEXTURE_MIN_FILTER, minFilter);
+    rlCubemapParameters(cubemap.id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_LINEAR);
 
     rlEnableShader(shader.id);
 
     // Define projection matrix and send it to shader
-    Matrix matFboProjection = MatrixPerspective(90.0 * DEG2RAD, 1.0, rlGetCullDistanceNear(), rlGetCullDistanceFar());
+    Matrix matFboProjection = MatrixPerspective(90.0 * DEG2RAD, 1.0, 0.1f, 10.f);
     rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_PROJECTION], matFboProjection);
 
     // Define view matrix for every side of the cubemap

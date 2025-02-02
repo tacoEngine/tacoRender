@@ -11,11 +11,12 @@
 #include <tr_effects.h>
 
 #include "raymath.h"
+#include "tr_generators.h"
 
 int main() {
     SetTargetFPS(60);
 
-    const int screenWidth = 500, screenHeight = 500;
+    const int screenWidth = 1000, screenHeight = 1000;
 
     InitWindow(screenWidth, screenHeight, "tacoRender emissions sphere");
     Init3D();
@@ -62,7 +63,6 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightSun(presenter, camera, (Vector3){0, -1, -1}, 1, WHITE, NULL_SHADOW_MAP);
             LightIBL(presenter, camera, radiance, irradiance);
 
             EndLightingPass();

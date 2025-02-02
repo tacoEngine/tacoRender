@@ -40,7 +40,7 @@ int main() {
         maps[MATERIAL_MAP_ALBEDO].texture = LoadTextureFromImage(GenImageColor(1, 1, BROWN));
         maps[MATERIAL_MAP_NORMAL].texture = LoadTextureFromImage(GenImageColor(1, 1, {128, 128, 255}));
 
-        unsigned char met_channel = i % 2 * 128 + 64;
+        unsigned char met_channel = (i % 2) * 255;
         unsigned char rough_channel = i / 2 * 128 + 64;
 
         Color metallic = Color{met_channel, met_channel, met_channel, 255};

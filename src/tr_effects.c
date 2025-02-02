@@ -617,13 +617,20 @@ const char tr_brdf_lut[] = {
 void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance, TextureCubemap irradiance) {
     static Shader ibl = {0};
     static Texture brdf;
+    static int radianceMapsLoc;
     if (ibl.id == 0) {
         ibl = GetShader(SHADER_IBL);
+        radianceMapsLoc = GetShaderLocation(ibl, "radianceMaps");
+
         brdf = LoadTextureFromImage(LoadImageFromMemory(".png", tr_brdf_lut, sizeof(tr_brdf_lut)));
+        SetTextureWrap(brdf, TEXTURE_WRAP_CLAMP);
     }
 
     unsigned int ids[] = {radiance.id, irradiance.id};
     int locs[] = {ibl.locs[SHADER_LOC_MAP_PREFILTER], ibl.locs[SHADER_LOC_MAP_IRRADIANCE]};
+
+    float mipmaps = radiance.mipmaps;
+    SetShaderValue(ibl, radianceMapsLoc, &mipmaps, SHADER_UNIFORM_FLOAT);
 
     RunLightShaderPro(presenter, camera, ibl, 2, ids, locs, 1, &brdf.id, &ibl.locs[SHADER_LOC_MAP_BRDF]);
 }

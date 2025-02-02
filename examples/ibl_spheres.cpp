@@ -34,10 +34,10 @@ int main() {
         MaterialMap *maps = spheres[i].materials[0].maps;
 
         spheres[i].materials[0].shader = GetGBufferShader();
-        maps[MATERIAL_MAP_ALBEDO].texture = LoadTextureFromImage(GenImageColor(1, 1, BROWN));
+        maps[MATERIAL_MAP_ALBEDO].texture = LoadTextureFromImage(GenImageColor(1, 1, LIGHTGRAY));
         maps[MATERIAL_MAP_NORMAL].texture = LoadTextureFromImage(GenImageColor(1, 1, {128, 128, 255}));
 
-        unsigned char met_channel = i % 2 * 128 + 64;
+        unsigned char met_channel = (i % 2) * 255;
         unsigned char rough_channel = i / 2 * 128 + 64;
 
         Color metallic = Color{met_channel, met_channel, met_channel, 255};
@@ -81,7 +81,6 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightSun(presenter, camera, (Vector3){0, -1, -1}, 1, WHITE, NULL_SHADOW_MAP);
             LightIBL(presenter, camera, radiance, irradiance);
 
             EndLightingPass();
