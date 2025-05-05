@@ -60,6 +60,8 @@ GBuffers LoadGBuffers(int width, int height) {
         target.depth.format = 19; //DEPTH_COMPONENT_24BIT?
         target.depth.mipmaps = 1;
 
+        SetTextureWrap(target.depth, TEXTURE_WRAP_CLAMP);
+
         rlActiveDrawBuffers(6);
 
         // Attach color texture and depth texture to FBO

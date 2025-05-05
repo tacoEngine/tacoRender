@@ -123,11 +123,13 @@ void RunLightShaderPro(GBufferPresenter presenter,
         rlSetVertexAttribute(shader.locs[SHADER_LOC_VERTEX_TEXCOORD01], 2, RL_FLOAT, 0, 0, 0);
         rlEnableVertexAttribute(shader.locs[SHADER_LOC_VERTEX_TEXCOORD01]);
 
-        if (plane.indices != NULL) rlEnableVertexBufferElement(plane.vboId[RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES]);
+        if (plane.indices != NULL)
+            rlEnableVertexBufferElement(plane.vboId[RL_DEFAULT_SHADER_ATTRIB_LOCATION_INDICES]);
     }
 
     int eyeCount = 1;
-    if (rlIsStereoRenderEnabled()) eyeCount = 2;
+    if (rlIsStereoRenderEnabled())
+        eyeCount = 2;
 
     Matrix matView = rlGetMatrixModelview();
     Matrix matProjection = rlGetMatrixProjection();
@@ -135,7 +137,8 @@ void RunLightShaderPro(GBufferPresenter presenter,
     for (int eye = 0; eye < eyeCount; eye++) {
         // Calculate model-view-projection matrix (MVP)
         Matrix matModelViewProjection = MatrixMultiply(matScale, matView);
-        if (eyeCount == 1) matModelViewProjection = MatrixMultiply(matModelViewProjection, matProjection);
+        if (eyeCount == 1)
+            matModelViewProjection = MatrixMultiply(matModelViewProjection, matProjection);
         else {
             // Setup current eye viewport (half screen width)
             rlViewport(eye * presenter.back[0].texture.width / 2,
@@ -151,8 +154,10 @@ void RunLightShaderPro(GBufferPresenter presenter,
         rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_MVP], matModelViewProjection);
 
         // Draw mesh
-        if (plane.indices != NULL) rlDrawVertexArrayElements(0, plane.triangleCount * 3, 0);
-        else rlDrawVertexArray(0, plane.vertexCount);
+        if (plane.indices != NULL)
+            rlDrawVertexArrayElements(0, plane.triangleCount * 3, 0);
+        else
+            rlDrawVertexArray(0, plane.vertexCount);
     }
 
     // Unbind all bound texture maps
@@ -497,6 +502,73 @@ void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations) {
         DrawTexture(shadowMap.back[0].texture, 0, 0, WHITE);
         EndTextureMode();
     }
+}
+
+ScreenShadowMap LoadScreenShadowMap(int width, int height) {
+    ScreenShadowMap shadowMap;
+
+    shadowMap.back[0] = LoadCustomRenderTexture(width, height, RL_PIXELFORMAT_UNCOMPRESSED_R32, true, false);
+    shadowMap.back[1] = LoadCustomRenderTexture(width, height, RL_PIXELFORMAT_UNCOMPRESSED_R32, true, false);
+
+    SetTextureWrap(shadowMap.back[0].texture, TEXTURE_WRAP_CLAMP);
+    SetTextureWrap(shadowMap.back[1].texture, TEXTURE_WRAP_CLAMP);
+
+    return shadowMap;
+}
+
+void ComputeScreenShadowMap(GBufferPresenter presenter, ScreenShadowMap shadowMap, Camera camera, Vector3 position) {
+    static Shader sssShader = {0};
+    static int positionLoc, offsetLoc, maxStepsLoc, viewMatLoc, projMatLoc;
+    if (sssShader.id == 0) {
+        sssShader = GetShader(SHADER_SSS);
+        positionLoc = GetShaderLocation(sssShader, "position");
+        offsetLoc = GetShaderLocation(sssShader, "offset");
+        maxStepsLoc = GetShaderLocation(sssShader, "maxSteps");
+
+        viewMatLoc = GetShaderLocation(sssShader, "viewMat");
+        projMatLoc = GetShaderLocation(sssShader, "projMat");
+    }
+
+    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
+    double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
+    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
+
+    SetShaderValueMatrix(sssShader, viewMatLoc, GetCameraMatrix(camera));
+    SetShaderValueMatrix(sssShader, projMatLoc, projection);
+
+    const unsigned int iterations = 16;
+
+    int offset = 1;
+    int maxSteps = 128;
+
+    for (unsigned int i = 0; i < iterations * 2; i++) {
+        BeginTextureMode(shadowMap.back[!(i & 1)]);
+        rlClearScreenBuffers();
+        Texture *tex = (i == 0) ? &presenter.source.depth : &shadowMap.back[i & 1].texture;
+
+        SetShaderValue(sssShader,
+                       positionLoc,
+                       &position,
+                       SHADER_UNIFORM_VEC3);
+
+        SetShaderValue(sssShader,
+                       offsetLoc,
+                       &offset,
+                       SHADER_UNIFORM_INT);
+
+        SetShaderValue(sssShader,
+                       maxStepsLoc,
+                       &maxSteps,
+                       SHADER_UNIFORM_INT);
+
+        BeginShaderMode(sssShader);
+        DrawTexture(*tex, 0, 0, WHITE);
+        EndTextureMode();
+
+        EndTextureMode();
+    }
+
+    EndShaderMode();
 }
 
 Skybox LoadSkybox(const char *filename) {

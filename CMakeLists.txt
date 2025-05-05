@@ -56,3 +56,6 @@ target_link_libraries(tr_shadowmap tacoRender)
 
 add_executable(tr_monkey_ao examples/monkey_ao.cpp)
 target_link_libraries(tr_monkey_ao tacoRender)
+
+add_executable(tr_sss_point examples/screen_space_shadows.cpp)
+target_link_libraries(tr_sss_point tacoRender)

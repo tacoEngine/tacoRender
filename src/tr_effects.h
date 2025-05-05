@@ -47,6 +47,10 @@ typedef struct ShadowMap {
     int cascades;
 } ShadowMap;
 
+typedef struct ScreenShadowMap {
+    RenderTexture back[2];
+} ScreenShadowMap;
+
 #define NULL_SHADOW_MAP ((ShadowMap) {0, NULL, NULL, NULL, 0, 0})
 
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader);
@@ -76,6 +80,9 @@ void UnloadShadowMap(ShadowMap);
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade);
 void EndShadowMap();
 void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations);
+
+ScreenShadowMap LoadScreenShadowMap(int width, int height);
+void ComputeScreenShadowMap(GBufferPresenter presenter, ScreenShadowMap shadowMap, Camera camera, Vector3 position);
 
 Skybox LoadSkybox(const char *filename);
 Skybox LoadSkyboxImage(Image image);

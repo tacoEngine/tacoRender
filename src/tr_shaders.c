@@ -122,6 +122,11 @@ const char tr_prefilter_fs[] = {
     , '\0'
 };
 
+const char tr_sss_fs[] = {
+#embed "shaders/sss_point.fs.glsl"
+    , '\0'
+};
+
 const char tr_ssao_fs[] = {
 #embed "shaders/ssao.fs.glsl"
     , '\0'
@@ -201,6 +206,8 @@ void LoadShaders() {
 
         prefilterShader = LoadShaderFromMemory(tr_cubemap_vs, tr_prefilter_fs);
 
+        sssPointShader = LoadShaderFromMemory(tr_flip_vs, tr_sss_fs);
+
         ssaoShader = LoadShaderFromMemory(tr_flip_vs, tr_ssao_fs);
         ssaoShader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(ssaoShader, "normalMap");
         ssaoShader.locs[SHADER_LOC_MAP_HEIGHT] = GetShaderLocation(ssaoShader, "depth");
@@ -231,6 +238,7 @@ void UnloadShaders() {
     UnloadShader(prefilterShader);
     UnloadShader(ssaoShader);
     UnloadShader(texToDepthShader);
+    UnloadShader(sssPointShader);
     UnloadShader(copyBackgroundShader);
 }
 
@@ -266,6 +274,8 @@ Shader GetShader(EmbeddedShader shade) {
         return irradianceShader;
     case SHADER_PREFILTER:
         return prefilterShader;
+    case SHADER_SSS:
+        return sssPointShader;
     case SHADER_SSAO:
         return ssaoShader;
     case SHADER_TEX_TO_DEPTH:
