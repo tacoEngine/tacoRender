@@ -86,20 +86,21 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightPoint(presenter, camera, light_position, 3, 100, WHITE);
+            LightPoint(presenter, camera, light_position, 3, 100, WHITE, shadowMap);
 
             EndLightingPass();
         }
 
         ComputeScreenShadowMap(presenter, shadowMap, camera, light_position);
 
-        //ApplyGammaCorrection(presenter, 2.2);
+        ApplyGammaCorrection(presenter, 2.2);
 
         BeginDrawing();
 
         ClearBackground(BLANK);
 
-        DrawDepth(shadowMap.back[0].texture, Vector2{0, 0}, 0, 1, WHITE);
+        //DrawDepth(shadowMap.back[0].texture, Vector2{0, 0}, 0, 1, WHITE);
+        DrawTexture(presenter.target.texture, 0, 0, WHITE);
         EndDrawing();
     }
 

@@ -10,6 +10,7 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D emissiveMap;
 uniform sampler2D depth;
+uniform sampler2D shadow;
 uniform vec3 camPos;
 uniform mat4 invView;
 uniform mat4 invProj;
@@ -26,7 +27,7 @@ const float PI = 3.14159265359;
 const float maxDist = 0.999999940395355224609375;
 
 float LinearizeDepth(float depth) {
-    float z = depth * 2.0 - 1.0; // back to NDC
+    float z = depth * 2.0 - 1.0;// back to NDC
     return (2.0 * CULL_NEAR * CULL_FAR) / (CULL_FAR + CULL_NEAR - z * (CULL_FAR - CULL_NEAR));
 }
 
@@ -95,6 +96,13 @@ void main() {
 
     vec3 lightDir = normalize(pos - worldPos);
     vec3 viewDir = normalize(camPos - worldPos);
+
+    float shadowFactor = 1;
+    float shadowDepth = texture(shadow, fragTexCoord).r;
+
+    if (LinearizeDepth(shadowDepth) < (LinearizeDepth(dist) - 0.2))
+        shadowFactor = 0;
+
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
     float lDotN = max(dot(lightDir, normal), 0.0);
@@ -125,5 +133,5 @@ void main() {
 
     vec3 outColor = (kD * diffuse + specular) * radiance * lDotN;
 
-    finalColor = vec4(outColor + emission, albedo.a);
+    finalColor = vec4(outColor * shadowFactor + emission, albedo.a);
 }

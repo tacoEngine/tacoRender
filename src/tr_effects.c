@@ -660,15 +660,17 @@ void LightPoint(GBufferPresenter presenter,
                 Vector3 position,
                 float intensity,
                 float radius,
-                Color tint) {
+                Color tint,
+                ScreenShadowMap shadowMap) {
     static Shader point = {0};
-    static int posLoc, intensityLoc, radiusLoc, colorLoc;
+    static int posLoc, intensityLoc, radiusLoc, colorLoc, shadowLoc;
     if (point.id == 0) {
         point = GetShader(SHADER_POINT);
         posLoc = GetShaderLocation(point, "pos");
         intensityLoc = GetShaderLocation(point, "intensity");
         radiusLoc = GetShaderLocation(point, "radius");
         colorLoc = GetShaderLocation(point, "color");
+        shadowLoc = GetShaderLocation(point, "shadow");
     }
     SetShaderValue(point, posLoc, &position, SHADER_UNIFORM_VEC3);
     SetShaderValue(point, intensityLoc, &intensity, SHADER_UNIFORM_FLOAT);
@@ -676,7 +678,9 @@ void LightPoint(GBufferPresenter presenter,
     Vector3 color = {(float) tint.r / 255.f, (float) tint.g / 255.f, (float) tint.b / 255.f};
     SetShaderValue(point, colorLoc, &color, SHADER_UNIFORM_VEC3);
 
-    RunLightShader(presenter, camera, point);
+    unsigned int id_array[] = {shadowMap.back[0].texture.id};
+    int loc_array[] = {shadowLoc};
+    RunLightShaderEx(presenter, camera, point, 1, id_array, loc_array);
 }
 
 void LightSun(GBufferPresenter presenter,
