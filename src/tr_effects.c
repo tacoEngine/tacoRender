@@ -518,12 +518,11 @@ ScreenShadowMap LoadScreenShadowMap(int width, int height) {
 
 void ComputeScreenShadowMap(GBufferPresenter presenter, ScreenShadowMap shadowMap, Camera camera, Vector3 position) {
     static Shader sssShader = {0};
-    static int positionLoc, offsetLoc, maxStepsLoc, viewMatLoc, projMatLoc;
+    static int positionLoc, stepSizeLoc, viewMatLoc, projMatLoc;
     if (sssShader.id == 0) {
         sssShader = GetShader(SHADER_SSS);
         positionLoc = GetShaderLocation(sssShader, "position");
-        offsetLoc = GetShaderLocation(sssShader, "offset");
-        maxStepsLoc = GetShaderLocation(sssShader, "maxSteps");
+        stepSizeLoc = GetShaderLocation(sssShader, "stepSize");
 
         viewMatLoc = GetShaderLocation(sssShader, "viewMat");
         projMatLoc = GetShaderLocation(sssShader, "projMat");
@@ -533,33 +532,22 @@ void ComputeScreenShadowMap(GBufferPresenter presenter, ScreenShadowMap shadowMa
     double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
     Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
 
+
+    const unsigned int iterations = 128;
+
+    // Locking to width, because it's more common to be wider and even if its not, the fmin is just not worth it
+    float stepSize = 1.f / (float) presenter.target.texture.width;
+
     SetShaderValueMatrix(sssShader, viewMatLoc, GetCameraMatrix(camera));
     SetShaderValueMatrix(sssShader, projMatLoc, projection);
 
-    const unsigned int iterations = 16;
-
-    int offset = 1;
-    int maxSteps = 128;
+    SetShaderValue(sssShader, positionLoc, &position, SHADER_UNIFORM_VEC3);
+    SetShaderValue(sssShader, stepSizeLoc, &stepSize, SHADER_UNIFORM_FLOAT);
 
     for (unsigned int i = 0; i < iterations * 2; i++) {
         BeginTextureMode(shadowMap.back[!(i & 1)]);
         rlClearScreenBuffers();
         Texture *tex = (i == 0) ? &presenter.source.depth : &shadowMap.back[i & 1].texture;
-
-        SetShaderValue(sssShader,
-                       positionLoc,
-                       &position,
-                       SHADER_UNIFORM_VEC3);
-
-        SetShaderValue(sssShader,
-                       offsetLoc,
-                       &offset,
-                       SHADER_UNIFORM_INT);
-
-        SetShaderValue(sssShader,
-                       maxStepsLoc,
-                       &maxSteps,
-                       SHADER_UNIFORM_INT);
 
         BeginShaderMode(sssShader);
         DrawTexture(*tex, 0, 0, WHITE);

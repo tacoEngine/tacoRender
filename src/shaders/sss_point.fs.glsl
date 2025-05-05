@@ -6,8 +6,7 @@ out float finalColor;
 
 uniform sampler2D depth;
 uniform vec3 position;
-uniform int offset;
-uniform int maxSteps;
+uniform float stepSize;
 uniform mat4 viewMat;
 uniform mat4 projMat;
 
@@ -53,17 +52,16 @@ void main() {
     vec3 lightPositionDepth = ScreenSpaceFromWorld(position);
     float linearLightDepth = LinearizeDepth(lightPositionDepth.z);
 
-    vec2 toLight = lightPositionDepth.xy - fragTexCoord;
-    vec2 stepSize = toLight / float(maxSteps);
+    vec2 toLight = normalize(lightPositionDepth.xy - fragTexCoord);
 
     vec2 positions[4] = vec2[4](
         fragTexCoord,
-        fragTexCoord + stepSize * float(offset),
-        fragTexCoord + stepSize * float(offset * 2),
-        fragTexCoord + stepSize * float(offset * 3)
+        fragTexCoord + toLight * stepSize * 2.0,
+        fragTexCoord + toLight * stepSize * 4.0,
+        fragTexCoord + toLight * stepSize * 6.0
     );
 
-    float depth0 = DepthFromPoint(positions[0], lightPositionDepth.xy, linearLightDepth);
+    float depth0 = LinearizeDepth(texture(depth, positions[0]).r);
     float depth1 = DepthFromPoint(positions[1], lightPositionDepth.xy, linearLightDepth);
     float depth2 = DepthFromPoint(positions[2], lightPositionDepth.xy, linearLightDepth);
     float depth3 = DepthFromPoint(positions[3], lightPositionDepth.xy, linearLightDepth);
