@@ -68,8 +68,9 @@ int main() {
     Vector3 light_position = {3, 4, 0};
 
     DisableCursor();
+    SetExitKey(0);
 
-    enum draw_mode {shaded, unshaded, depth} draw_mode = shaded;
+    enum draw_mode {shaded, unshaded, depth, shadow} draw_mode = shaded;
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_ONE))
@@ -78,8 +79,16 @@ int main() {
             draw_mode = unshaded;
         if (IsKeyPressed(KEY_THREE))
             draw_mode = depth;
+        if (IsKeyPressed(KEY_FOUR))
+            draw_mode = shadow;
 
-        UpdateCamera(&camera, CAMERA_FREE);
+        if (IsKeyPressed(KEY_ESCAPE))
+            EnableCursor();
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            DisableCursor();
+
+        if (IsCursorHidden())
+            UpdateCamera(&camera, CAMERA_FREE);
 
         { // Render to GBuffers
             BeginGBufferMode(buffers);
@@ -122,6 +131,8 @@ int main() {
             DrawTexture(presenter.source.albedo, 0, 0, WHITE);
             EndShaderMode();
         } else if (draw_mode == depth)
+            DrawDepth(presenter.source.depth, Vector2 {0, 0}, 0, 1, WHITE);
+        else if (draw_mode == shadow)
             DrawDepth(shadowMap.back[0].texture, Vector2 {0, 0}, 0, 1, WHITE);
 
         EndDrawing();
