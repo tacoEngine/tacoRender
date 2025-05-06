@@ -61,6 +61,7 @@ GBuffers LoadGBuffers(int width, int height) {
         target.depth.mipmaps = 1;
 
         SetTextureWrap(target.depth, TEXTURE_WRAP_CLAMP);
+        SetTextureFilter(target.depth, TEXTURE_FILTER_BILINEAR);
 
         rlActiveDrawBuffers(6);
 

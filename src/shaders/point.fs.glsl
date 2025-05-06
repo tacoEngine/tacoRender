@@ -100,7 +100,7 @@ void main() {
     float shadowFactor = 1;
     float shadowDepth = texture(shadow, fragTexCoord).r;
 
-    if (LinearizeDepth(shadowDepth) < (LinearizeDepth(dist) - 0.2))
+    if (LinearizeDepth(shadowDepth) < (LinearizeDepth(dist) - 0.01))
         shadowFactor = 0;
 
     vec3 halfwayDir = normalize(lightDir + viewDir);

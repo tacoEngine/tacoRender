@@ -56,9 +56,9 @@ void main() {
 
     vec2 positions[4] = vec2[4](
         fragTexCoord,
+        fragTexCoord + toLight * stepSize,
         fragTexCoord + toLight * stepSize * 2.0,
-        fragTexCoord + toLight * stepSize * 4.0,
-        fragTexCoord + toLight * stepSize * 6.0
+        fragTexCoord + toLight * stepSize * 3.0
     );
 
     float depth0 = LinearizeDepth(texture(depth, positions[0]).r);
@@ -68,5 +68,5 @@ void main() {
 
     float minDepth = min(min(min(depth0, depth1), depth2), depth3);
 
-    finalColor = clamp(DelinearizeDepth(minDepth), 0.0, 1.0);
+    finalColor = DelinearizeDepth(minDepth);
 }

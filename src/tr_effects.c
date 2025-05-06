@@ -513,6 +513,9 @@ ScreenShadowMap LoadScreenShadowMap(int width, int height) {
     SetTextureWrap(shadowMap.back[0].texture, TEXTURE_WRAP_CLAMP);
     SetTextureWrap(shadowMap.back[1].texture, TEXTURE_WRAP_CLAMP);
 
+    SetTextureFilter(shadowMap.back[0].texture, TEXTURE_FILTER_BILINEAR);
+    SetTextureFilter(shadowMap.back[1].texture, TEXTURE_FILTER_BILINEAR);
+
     return shadowMap;
 }
 

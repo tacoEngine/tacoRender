@@ -11,6 +11,8 @@
 #include <tr_effects.h>
 #include <raymath.h>
 
+#include "tr_shaders.h"
+
 int main() {
     SetTargetFPS(60);
 
@@ -20,10 +22,15 @@ int main() {
     Init3D();
 
     Camera3D camera = (Camera3D) {
-        .position = (Vector3) {-2, 4, -8}, .target = (Vector3) {0., 0.5, 0}, .up = (Vector3) {
-            0, 1, 0
+        .position = (Vector3) {-2, 4, -8},
+        .target = (Vector3) {0., 0.5, 0},
+        .up = (Vector3) {
+            0,
+            1,
+            0
         },
-        .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
@@ -62,7 +69,16 @@ int main() {
 
     DisableCursor();
 
+    enum draw_mode {shaded, unshaded, depth} draw_mode = shaded;
+
     while (!WindowShouldClose()) {
+        if (IsKeyPressed(KEY_ONE))
+            draw_mode = shaded;
+        if (IsKeyPressed(KEY_TWO))
+            draw_mode = unshaded;
+        if (IsKeyPressed(KEY_THREE))
+            draw_mode = depth;
+
         UpdateCamera(&camera, CAMERA_FREE);
 
         { // Render to GBuffers
@@ -86,7 +102,7 @@ int main() {
 
             ClearBackground(BLACK);
 
-            LightPoint(presenter, camera, light_position, 3, 100, WHITE, shadowMap);
+            LightPoint(presenter, camera, light_position, 10, 100, WHITE, shadowMap);
 
             EndLightingPass();
         }
@@ -99,8 +115,15 @@ int main() {
 
         ClearBackground(BLANK);
 
-        //DrawDepth(shadowMap.back[0].texture, Vector2{0, 0}, 0, 1, WHITE);
-        DrawTexture(presenter.target.texture, 0, 0, WHITE);
+        if (draw_mode == shaded)
+            DrawTexture(presenter.target.texture, 0, 0, WHITE);
+        else if (draw_mode == unshaded) {
+            BeginShaderMode(GetShader(SHADER_FLIP_Y));
+            DrawTexture(presenter.source.albedo, 0, 0, WHITE);
+            EndShaderMode();
+        } else if (draw_mode == depth)
+            DrawDepth(shadowMap.back[0].texture, Vector2 {0, 0}, 0, 1, WHITE);
+
         EndDrawing();
     }
 
