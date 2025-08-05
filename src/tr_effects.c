@@ -62,9 +62,9 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
     int camProjLoc = GetShaderLocation(shader, "camProj");
 
     SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
-    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
+    double top = RL_CULL_DISTANCE_NEAR * tan(camera.fovy * 0.5 * DEG2RAD);
     double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
-    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
+    Matrix projection = MatrixFrustum(-right, right, -top, top, RL_CULL_DISTANCE_NEAR, RL_CULL_DISTANCE_FAR);
 
     SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
     SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));

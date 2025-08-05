@@ -19,8 +19,8 @@ uniform samplerCube irradianceMap;
 uniform sampler2D brdfLUT;
 uniform float radianceMaps;
 
-const float CULL_NEAR = 0.01;
-const float CULL_FAR = 1000.0;
+const float CULL_NEAR = 0.05;
+const float CULL_FAR = 4000.0;
 
 const float PI = 3.14159265359;
 // Biggest number less than 1 (one) representable with IEEE754 (or really close to it)
