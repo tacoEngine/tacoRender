@@ -19,6 +19,8 @@ add_library(tacoRender
         src/tr_effects.h
         src/tr_generators.c
         src/tr_generators.h
+        src/tr_timing.c
+        src/tr_timing.h
 )
 target_link_libraries(tacoRender raylib)
 target_include_directories(tacoRender PUBLIC src)
