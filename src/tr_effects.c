@@ -407,7 +407,7 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
         maxZ = fmaxf(maxZ, lightCoordinate.z);
     }
 
-    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, maxZ, minZ);
+    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, maxZ + 10, minZ);
     lightProj.m10 *= -1;
 
     rlSetMatrixProjection(lightProj);
@@ -501,7 +501,7 @@ void ShadeFlat(GBufferPresenter presenter) {
 }
 
 void CopyBackground(GBufferPresenter presenter) {
-    RunLightShader(presenter, (Camera){}, GetShader(SHADER_COPY_BACKGROUND));
+    RunLightShader(presenter, (Camera) {}, GetShader(SHADER_COPY_BACKGROUND));
 }
 
 void ApplyGammaCorrection(GBufferPresenter presenter, float gamma) {
