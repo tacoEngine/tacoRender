@@ -216,11 +216,15 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
 
 Texture BlurTexture(RenderTexture back[], Texture texture, unsigned int iterations) {
     static Shader blurShader = {0};
-    static int horizontalLoc;
+    static int horizontalLoc, imageSizeLoc;
     if (blurShader.id == 0) {
         blurShader = GetShader(SHADER_BLUR_GAUSS);
+        imageSizeLoc = GetShaderLocation(blurShader, "image_size");
         horizontalLoc = GetShaderLocation(blurShader, "horizontal");
     }
+
+    Vector2 imageSize = (Vector2) {texture.width, texture.height};
+    SetShaderValue(blurShader, imageSizeLoc, &imageSize, RL_SHADER_UNIFORM_VEC2);
 
     for (unsigned int i = 0; i < iterations * 2; i++) {
         unsigned int horizontal = i & 1;

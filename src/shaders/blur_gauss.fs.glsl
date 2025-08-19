@@ -5,11 +5,12 @@ in vec2 fragTexCoord;
 out vec4 finalColor;
 
 uniform sampler2D image;
+uniform vec2 image_size;
 uniform uint horizontal;
 uniform float weight[3] = float[] (0.4026199469, 0.2442013420, 0.0544886846);
 
 void main() {
-    vec2 tex_offset = 1.0 / textureSize(image, 0);// gets size of single texel
+    vec2 tex_offset = 1.0 / image_size;// gets size of single texel
     vec3 result = texture(image, fragTexCoord).rgb * weight[0];// current fragment's contribution
     if (horizontal == 1u) {
         for (int i = 1; i < 3; i++) {
