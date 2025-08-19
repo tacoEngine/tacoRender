@@ -6,18 +6,18 @@ out vec4 finalColor;
 
 uniform sampler2D image;
 uniform uint horizontal;
-uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+uniform float weight[3] = float[] (0.4026199469, 0.2442013420, 0.0544886846);
 
 void main() {
-    vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
-    vec3 result = texture(image, fragTexCoord).rgb * weight[0]; // current fragment's contribution
+    vec2 tex_offset = 1.0 / textureSize(image, 0);// gets size of single texel
+    vec3 result = texture(image, fragTexCoord).rgb * weight[0];// current fragment's contribution
     if (horizontal == 1u) {
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 3; i++) {
             result += texture(image, fragTexCoord + vec2(i * tex_offset.x, 0.0)).rgb * weight[i];
             result += texture(image, fragTexCoord - vec2(i * tex_offset.x, 0.0)).rgb * weight[i];
         }
     } else {
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 3; i++) {
             result += texture(image, fragTexCoord + vec2(0.0, i * tex_offset.y)).rgb * weight[i];
             result += texture(image, fragTexCoord - vec2(0.0, i * tex_offset.y)).rgb * weight[i];
         }
