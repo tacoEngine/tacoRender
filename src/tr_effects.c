@@ -214,7 +214,7 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
     EndTextureMode();
 }
 
-Texture BlurTexture(RenderTexture back[], Texture texture, int iterations) {
+Texture BlurTexture(RenderTexture back[], Texture texture, unsigned int iterations) {
     static Shader blurShader = {0};
     static int horizontalLoc;
     if (blurShader.id == 0) {
@@ -424,7 +424,10 @@ void EndShadowMap() {
     EndTextureMode();
 }
 
-void FilterShadowMap(ShadowMap shadowMap) {
+void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations) {
+    if (iterations == 0) {
+        return;
+    }
     for (int i = 0; i < shadowMap.cascades; i++) {
         Texture tex;
         tex.id = shadowMap.ids[i];
@@ -433,7 +436,7 @@ void FilterShadowMap(ShadowMap shadowMap) {
 
         rlDisableDepthTest();
 
-        BlurTexture(shadowMap.back, tex, 2);
+        BlurTexture(shadowMap.back, tex, iterations);
 
         // Set cascade as depth attachment
         rlFramebufferAttach(shadowMap.fbo, tex.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
