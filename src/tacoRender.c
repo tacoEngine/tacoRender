@@ -44,7 +44,7 @@ GBuffers LoadGBuffers(int width, int height) {
         rlEnableFramebuffer(target.id);
 
         target.albedo = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-        target.normal = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32);
+        target.normal = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R16G16B16);
         target.metallic = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
         target.roughness = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
         target.emission = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8);
