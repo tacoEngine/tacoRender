@@ -217,27 +217,50 @@ void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
     EndTextureMode();
 }
 
-Texture BlurTexture(RenderTexture back[], Texture texture, unsigned int iterations) {
-    static Shader blurShader = {0};
-    static int horizontalLoc, imageSizeLoc;
-    if (blurShader.id == 0) {
-        blurShader = GetShader(SHADER_BLUR_GAUSS);
-        imageSizeLoc = GetShaderLocation(blurShader, "image_size");
-        horizontalLoc = GetShaderLocation(blurShader, "horizontal");
+typedef struct BlurShader {
+    Shader shader;
+    int horizontalLoc, imageSizeLoc;
+    EmbeddedShader selector;
+} BlurShader;
+
+void BlurTextureWithShader(BlurShader *shader, Texture texture, RenderTexture back[], unsigned int iterations);
+
+Texture BlurTexture(Blur blur, Texture texture, RenderTexture back[], unsigned int iterations) {
+    static BlurShader blurBox = {0}, blurGauss = {0};
+    if (blurBox.shader.id == 0) {
+        blurBox.selector = SHADER_BLUR_BOX;
+        blurGauss.selector = SHADER_BLUR_GAUSS;
+    }
+
+    switch (blur) {
+    case BLUR_BOX:
+        BlurTextureWithShader(&blurBox, texture, back, iterations);
+        break;
+    case BLUR_GAUSS:
+        BlurTextureWithShader(&blurGauss, texture, back, iterations);
+        break;
+    }
+}
+
+void BlurTextureWithShader(BlurShader *shader, Texture texture, RenderTexture back[], unsigned int iterations) {
+    if (shader->shader.id == 0) {
+        shader->shader = GetShader(shader->selector);
+        shader->imageSizeLoc = GetShaderLocation(shader->shader, "image_size");
+        shader->horizontalLoc = GetShaderLocation(shader->shader, "horizontal");
     }
 
     Vector2 imageSize = (Vector2) {texture.width, texture.height};
-    SetShaderValue(blurShader, imageSizeLoc, &imageSize, RL_SHADER_UNIFORM_VEC2);
+    SetShaderValue(shader->shader, shader->imageSizeLoc, &imageSize, RL_SHADER_UNIFORM_VEC2);
 
     for (unsigned int i = 0; i < iterations * 2; i++) {
         unsigned int horizontal = i & 1;
-        SetShaderValue(blurShader, horizontalLoc, &horizontal, RL_SHADER_UNIFORM_UINT);
+        SetShaderValue(shader->shader, shader->horizontalLoc, &horizontal, RL_SHADER_UNIFORM_UINT);
 
         BeginTextureMode(back[!(i & 1)]);
         rlClearScreenBuffers();
         Texture tex = (i == 0) ? texture : back[i & 1].texture;
 
-        BeginShaderMode(blurShader);
+        BeginShaderMode(shader->shader);
         DrawTexture(tex, 0, 0, WHITE);
         EndTextureMode();
 
@@ -443,7 +466,7 @@ void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations) {
 
         rlDisableDepthTest();
 
-        BlurTexture(shadowMap.back, tex, iterations);
+        BlurTexture(BLUR_GAUSS, tex, shadowMap.back, iterations);
 
         // Set cascade as depth attachment
         rlFramebufferAttach(shadowMap.fbo, tex.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
@@ -542,11 +565,13 @@ void ApplySSAO(GBufferPresenter presenter, Camera camera) {
 
     rlEnableColorBlend();
 
+    BlurTexture(BLUR_BOX, presenter.back[0].texture, presenter.back, 1);
+
     rlSetBlendFactorsSeparate(RL_SRC_COLOR, RL_DST_COLOR, RL_SRC_ALPHA, RL_DST_ALPHA, RL_MIN, RL_MIN);
 
     BeginTextureMode(presenter.occlusion);
     BeginBlendMode(BLEND_CUSTOM_SEPARATE);
-    BeginShaderMode(GetShader(SHADER_BLUR_BOX));
+    BeginShaderMode(GetShader(SHADER_FLIP_Y));
 
     DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 

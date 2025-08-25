@@ -2,22 +2,25 @@
 
 in vec2 fragTexCoord;
 
-out float finalColor;
+out vec4 finalColor;
 
 uniform sampler2D image;
-
-#define RANGE 4
+uniform vec2 image_size;
+uniform uint horizontal;
 
 void main() {
-    vec2 texelSize = 1.0 / vec2(textureSize(image, 0));
-    float result = 0.0;
-    for (int x = -RANGE; x <= RANGE; ++x)
-    {
-        for (int y = -RANGE; y <= RANGE; ++y)
-        {
-            vec2 offset = vec2(float(x), float(y)) * texelSize;
-            result += texture(image, fragTexCoord + offset).r;
+    vec2 tex_offset = 1.0 / image_size;
+    vec3 result = texture(image, fragTexCoord).rgb;
+    if (horizontal == 1u) {
+        for (int i = 1; i <= 4; i++) {
+            result += texture(image, fragTexCoord + vec2(i * tex_offset.x, 0.0)).rgb;
+            result += texture(image, fragTexCoord - vec2(i * tex_offset.x, 0.0)).rgb;
+        }
+    } else {
+        for (int i = 1; i <= 4; i++) {
+            result += texture(image, fragTexCoord + vec2(0.0, i * tex_offset.y)).rgb;
+            result += texture(image, fragTexCoord - vec2(0.0, i * tex_offset.y)).rgb;
         }
     }
-    finalColor = result / ((RANGE * 2 + 1) * (RANGE * 2 + 1));
+    finalColor = vec4(result / 9, 1);
 }

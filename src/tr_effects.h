@@ -17,6 +17,9 @@
 
 #ifdef __cplusplus
 extern "C" {
+
+
+
 #endif
 
 typedef struct Skybox {
@@ -26,6 +29,11 @@ typedef struct Skybox {
 typedef enum ToneMapper {
     TONE_MAP_REINHARD
 } ToneMapper;
+
+typedef enum Blur {
+    BLUR_BOX,
+    BLUR_GAUSS,
+} Blur;
 
 typedef struct ShadowMap {
     unsigned int fbo;
@@ -47,7 +55,7 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
                        unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
                        int *extraTextureLocs);
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
-Texture BlurTexture(RenderTexture back[], Texture texture, unsigned int iterations);
+Texture BlurTexture(Blur blur, Texture texture, RenderTexture back[], unsigned int iterations);
 
 void BeginLightingPass(GBufferPresenter presenter);
 void EndLightingPass();
