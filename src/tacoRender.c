@@ -51,6 +51,7 @@ GBuffers LoadGBuffers(int width, int height) {
         target.ao = LoadEmptyTexture(width, height, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
 
         SetTextureFilter(target.emission, TEXTURE_FILTER_BILINEAR);
+        SetTextureWrap(target.ao, TEXTURE_WRAP_CLAMP);
 
         // Create depth texture
         target.depth.id = rlLoadTextureDepth(width, height, false);
@@ -140,6 +141,10 @@ GBufferPresenter LoadPresenter(GBuffers buffers) {
                                                 PIXELFORMAT_UNCOMPRESSED_R16G16B16,
                                                 false,
                                                 true);
+
+    SetTextureWrap(presenter.back[0].texture, TEXTURE_WRAP_CLAMP);
+    SetTextureWrap(presenter.back[1].texture, TEXTURE_WRAP_CLAMP);
+
     presenter.source = buffers;
 
     presenter.occlusion.id = rlLoadFramebuffer();

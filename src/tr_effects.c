@@ -60,16 +60,19 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
     int invProjLoc = GetShaderLocation(shader, "invProj");
     int camViewLoc = GetShaderLocation(shader, "camView");
     int camProjLoc = GetShaderLocation(shader, "camProj");
+    int screenSizeLoc = GetShaderLocation(shader, "screenSize");
 
     SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], &camera.position, SHADER_UNIFORM_VEC3);
     double top = RL_CULL_DISTANCE_NEAR * tan(camera.fovy * 0.5 * DEG2RAD);
     double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
     Matrix projection = MatrixFrustum(-right, right, -top, top, RL_CULL_DISTANCE_NEAR, RL_CULL_DISTANCE_FAR);
+    Vector2 screen_size = {GetRenderWidth(), GetRenderHeight()};
 
     SetShaderValueMatrix(shader, invViewLoc, MatrixInvert(GetCameraMatrix(camera)));
     SetShaderValueMatrix(shader, invProjLoc, MatrixInvert(projection));
     SetShaderValueMatrix(shader, camViewLoc, GetCameraMatrix(camera));
     SetShaderValueMatrix(shader, camProjLoc, projection);
+    SetShaderValue(shader, screenSizeLoc, &screen_size, SHADER_UNIFORM_VEC2);
 
     float aspect = (float) GetScreenWidth() / (float) GetScreenHeight();
 
