@@ -84,6 +84,17 @@ GBuffers LoadGBuffers(int width, int height) {
     return target;
 }
 
+void UnloadGBuffers(GBuffers gbuffers) {
+    rlUnloadFramebuffer(gbuffers.id);
+    UnloadTexture(gbuffers.albedo);
+    UnloadTexture(gbuffers.metallic);
+    UnloadTexture(gbuffers.normal);
+    UnloadTexture(gbuffers.roughness);
+    UnloadTexture(gbuffers.emission);
+    UnloadTexture(gbuffers.ao);
+    UnloadTexture(gbuffers.depth);
+}
+
 RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool depthless, bool useRenderBuffer) {
     RenderTexture2D target = {0};
 
@@ -173,6 +184,12 @@ GBufferPresenter LoadPresenter(GBuffers buffers) {
     }
 
     return presenter;
+}
+
+void UnloadPresenter(GBufferPresenter presenter) {
+    UnloadRenderTexture(presenter.back[0]);
+    UnloadRenderTexture(presenter.back[1]);
+    rlUnloadFramebuffer(presenter.occlusion.id);
 }
 
 Shader GetGBufferShader() {
