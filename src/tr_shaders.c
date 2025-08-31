@@ -218,14 +218,19 @@ void UnloadShaders() {
     UnloadShader(depthDisplayShader);
     UnloadShader(addShader);
     UnloadShader(blurGaussShader);
+    UnloadShader(blurBoxShader);
     UnloadShader(blurBoxDepthShader);
     UnloadShader(skyboxShader);
     UnloadShader(flipYShader);
     UnloadShader(pointShader);
     UnloadShader(sunShader);
+    UnloadShader(iblShader);
     UnloadShader(gammaShader);
     UnloadShader(toneMapReinhardShader);
+    UnloadShader(irradianceShader);
+    UnloadShader(prefilterShader);
     UnloadShader(ssaoShader);
+    UnloadShader(texToDepthShader);
     UnloadShader(copyBackgroundShader);
 }
 
