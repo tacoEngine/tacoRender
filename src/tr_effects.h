@@ -32,6 +32,7 @@ typedef enum ToneMapper {
 
 typedef enum Blur {
     BLUR_BOX,
+    BLUR_BOX_DEPTH,
     BLUR_GAUSS,
 } Blur;
 
@@ -49,10 +50,20 @@ typedef struct ShadowMap {
 #define NULL_SHADOW_MAP ((ShadowMap) {0, NULL, NULL, NULL, 0, 0})
 
 void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader);
-void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, int extraTextureCount,
-                      unsigned int *extraTextureIDs, int *extraTextureLocs);
-void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader, int cubemapCount,
-                       unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
+void RunLightShaderEx(GBufferPresenter presenter,
+                      Camera camera,
+                      Shader shader,
+                      int extraTextureCount,
+                      unsigned int *extraTextureIDs,
+                      int *extraTextureLocs);
+void RunLightShaderPro(GBufferPresenter presenter,
+                       Camera camera,
+                       Shader shader,
+                       int cubemapCount,
+                       unsigned int *cubemapIDs,
+                       int *cubemapLocs,
+                       int extraTextureCount,
+                       unsigned int *extraTextureIDs,
                        int *extraTextureLocs);
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader);
 Texture BlurTexture(Blur blur, Texture texture, RenderTexture back[], unsigned int iterations);
@@ -78,7 +89,11 @@ void ApplyToneMapping(GBufferPresenter presenter, ToneMapper mapper);
 void ApplySSAO(GBufferPresenter presenter, Camera camera);
 
 void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius, Color tint);
-void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint,
+void LightSun(GBufferPresenter presenter,
+              Camera camera,
+              Vector3 direction,
+              float intensity,
+              Color tint,
               ShadowMap shadowMap);
 void LightIBL(GBufferPresenter presenter, Camera camera, TextureCubemap radiance, TextureCubemap irradiance);
 

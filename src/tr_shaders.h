@@ -13,6 +13,9 @@
 
 #ifdef __cplusplus
 extern "C" {
+
+
+
 #endif
 
 typedef enum EmbeddedShader {
@@ -21,6 +24,7 @@ typedef enum EmbeddedShader {
     SHADER_ADD,
     SHADER_BLUR_GAUSS,
     SHADER_BLUR_BOX,
+    SHADER_BLUR_BOX_DEPTH,
     SHADER_SKYBOX,
     SHADER_FLIP_Y,
     SHADER_POINT,

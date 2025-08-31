@@ -2,7 +2,7 @@
 
 in vec2 fragTexCoord;
 
-out float finalColor;
+out vec4 finalColor;
 
 uniform sampler2D normalMap;
 uniform sampler2D depth;
@@ -170,5 +170,5 @@ void main() {
 
     occlusion /= sectorCount;
 
-    finalColor = occlusion;
+    finalColor = vec4(occlusion, 0, 0, dist);
 }

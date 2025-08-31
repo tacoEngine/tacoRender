@@ -41,8 +41,14 @@ rlActiveTextureSlot(slot); \
 rlDisableTextureCubemap(); \
 }
 
-void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader, int cubemapCount,
-                       unsigned int *cubemapIDs, int *cubemapLocs, int extraTextureCount, unsigned int *extraTextureIDs,
+void RunLightShaderPro(GBufferPresenter presenter,
+                       Camera camera,
+                       Shader shader,
+                       int cubemapCount,
+                       unsigned int *cubemapIDs,
+                       int *cubemapLocs,
+                       int extraTextureCount,
+                       unsigned int *extraTextureIDs,
                        int *extraTextureLocs) {
     static Mesh plane = {0};
     Camera topdown = (Camera) {
@@ -182,8 +188,12 @@ void RunLightShaderPro(GBufferPresenter presenter, Camera camera, Shader shader,
     EndMode3D();
 }
 
-void RunLightShaderEx(GBufferPresenter presenter, Camera camera, Shader shader, int extraTextureCount,
-                      unsigned int *extraTextureIDs, int *extraTextureLocs) {
+void RunLightShaderEx(GBufferPresenter presenter,
+                      Camera camera,
+                      Shader shader,
+                      int extraTextureCount,
+                      unsigned int *extraTextureIDs,
+                      int *extraTextureLocs) {
     RunLightShaderPro(presenter,
                       camera,
                       shader,
@@ -226,15 +236,19 @@ typedef struct BlurShader {
 void BlurTextureWithShader(BlurShader *shader, Texture texture, RenderTexture back[], unsigned int iterations);
 
 Texture BlurTexture(Blur blur, Texture texture, RenderTexture back[], unsigned int iterations) {
-    static BlurShader blurBox = {0}, blurGauss = {0};
+    static BlurShader blurBox = {0}, blurBoxDepth = {0}, blurGauss = {0};
     if (blurBox.shader.id == 0) {
         blurBox.selector = SHADER_BLUR_BOX;
+        blurBoxDepth.selector = SHADER_BLUR_BOX_DEPTH;
         blurGauss.selector = SHADER_BLUR_GAUSS;
     }
 
     switch (blur) {
     case BLUR_BOX:
         BlurTextureWithShader(&blurBox, texture, back, iterations);
+        break;
+    case BLUR_BOX_DEPTH:
+        BlurTextureWithShader(&blurBoxDepth, texture, back, iterations);
         break;
     case BLUR_GAUSS:
         BlurTextureWithShader(&blurGauss, texture, back, iterations);
@@ -565,7 +579,7 @@ void ApplySSAO(GBufferPresenter presenter, Camera camera) {
 
     rlEnableColorBlend();
 
-    BlurTexture(BLUR_BOX, presenter.back[0].texture, presenter.back, 1);
+    BlurTexture(BLUR_BOX_DEPTH, presenter.back[0].texture, presenter.back, 1);
 
     rlSetBlendFactorsSeparate(RL_SRC_COLOR, RL_DST_COLOR, RL_SRC_ALPHA, RL_DST_ALPHA, RL_MIN, RL_MIN);
 
@@ -581,7 +595,11 @@ void ApplySSAO(GBufferPresenter presenter, Camera camera) {
     rlDisableColorBlend();
 }
 
-void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, float intensity, float radius,
+void LightPoint(GBufferPresenter presenter,
+                Camera camera,
+                Vector3 position,
+                float intensity,
+                float radius,
                 Color tint) {
     static Shader point = {0};
     static int posLoc, intensityLoc, radiusLoc, colorLoc;
@@ -601,7 +619,11 @@ void LightPoint(GBufferPresenter presenter, Camera camera, Vector3 position, flo
     RunLightShader(presenter, camera, point);
 }
 
-void LightSun(GBufferPresenter presenter, Camera camera, Vector3 direction, float intensity, Color tint,
+void LightSun(GBufferPresenter presenter,
+              Camera camera,
+              Vector3 direction,
+              float intensity,
+              Color tint,
               ShadowMap shadowMap) {
     static Shader sun = {0};
     static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeSizeLoc, cascadeLocs[8], cascadeMatLocs[8],

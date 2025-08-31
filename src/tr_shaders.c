@@ -16,6 +16,7 @@ static Shader depthDisplayShader = {0};
 static Shader addShader = {0};
 static Shader blurGaussShader = {0};
 static Shader blurBoxShader = {0};
+static Shader blurBoxDepthShader = {0};
 static Shader skyboxShader = {0};
 static Shader flipYShader = {0};
 static Shader pointShader = {0};
@@ -63,6 +64,11 @@ const char tr_blur_gauss_fs[] = {
 
 const char tr_blur_box_fs[] = {
 #embed "shaders/blur_box.fs.glsl"
+    , '\0'
+};
+
+const char tr_blur_box_depth_fs[] = {
+#embed "shaders/blur_box_depth.fs.glsl"
     , '\0'
 };
 
@@ -145,8 +151,11 @@ void LoadShaders() {
 
         depthDisplayShader = LoadShaderFromMemory(tr_flip_vs, tr_depth_display_fs);
         addShader = LoadShaderFromMemory(NULL, tr_add_fs);
+
         blurGaussShader = LoadShaderFromMemory(tr_flip_vs, tr_blur_gauss_fs);
         blurBoxShader = LoadShaderFromMemory(tr_flip_vs, tr_blur_box_fs);
+        blurBoxDepthShader = LoadShaderFromMemory(tr_flip_vs, tr_blur_box_depth_fs);
+
         skyboxShader = LoadShaderFromMemory(tr_skybox_vs, tr_skybox_fs);
 
         skyboxShader.locs[SHADER_LOC_MAP_CUBEMAP] = GetShaderLocation(skyboxShader, "skybox");
@@ -209,6 +218,7 @@ void UnloadShaders() {
     UnloadShader(depthDisplayShader);
     UnloadShader(addShader);
     UnloadShader(blurGaussShader);
+    UnloadShader(blurBoxDepthShader);
     UnloadShader(skyboxShader);
     UnloadShader(flipYShader);
     UnloadShader(pointShader);
@@ -231,6 +241,8 @@ Shader GetShader(EmbeddedShader shade) {
         return blurGaussShader;
     case SHADER_BLUR_BOX:
         return blurBoxShader;
+    case SHADER_BLUR_BOX_DEPTH:
+        return blurBoxDepthShader;
     case SHADER_SKYBOX:
         return skyboxShader;
     case SHADER_FLIP_Y:

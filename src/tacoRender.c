@@ -133,12 +133,12 @@ GBufferPresenter LoadPresenter(GBuffers buffers) {
     // Todo: Make back buffer depthless
     presenter.back[0] = LoadCustomRenderTexture(buffers.width,
                                                 buffers.height,
-                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16,
+                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16A16,
                                                 false,
                                                 true);
     presenter.back[1] = LoadCustomRenderTexture(buffers.width,
                                                 buffers.height,
-                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16,
+                                                PIXELFORMAT_UNCOMPRESSED_R16G16B16A16,
                                                 false,
                                                 true);
 
