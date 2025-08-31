@@ -125,11 +125,6 @@ RenderTexture LoadCustomRenderTexture(int width, int height, int format, bool de
 
 GBufferPresenter LoadPresenter(GBuffers buffers) {
     GBufferPresenter presenter;
-    presenter.target = LoadCustomRenderTexture(buffers.width,
-                                               buffers.height,
-                                               PIXELFORMAT_UNCOMPRESSED_R16G16B16,
-                                               false,
-                                               true);
     // Todo: Make back buffer depthless
     presenter.back[0] = LoadCustomRenderTexture(buffers.width,
                                                 buffers.height,
@@ -195,10 +190,6 @@ void EndGBufferMode() {
 }
 
 void ClearPresenter(GBufferPresenter presenter) {
-    BeginTextureMode(presenter.target);
-    rlClearScreenBuffers();
-    EndTextureMode();
-
     BeginTextureMode(presenter.back[0]);
     rlClearScreenBuffers();
     EndTextureMode();
@@ -213,7 +204,7 @@ void Present(GBufferPresenter presenter) {
 
     ClearBackground(BLANK);
 
-    DrawTexture(presenter.target.texture, 0, 0, WHITE);
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 
     EndDrawing();
 }
@@ -221,7 +212,7 @@ void Present(GBufferPresenter presenter) {
 void AddBackBuffer(GBufferPresenter presenter) {
     rlEnableColorBlend();
 
-    BeginTextureMode(presenter.target);
+    BeginTextureMode(presenter.back[0]);
 
     BeginBlendMode(BLEND_ADD_COLORS);
 

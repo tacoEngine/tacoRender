@@ -13,23 +13,25 @@
 
 #ifdef __cplusplus
 extern "C" {
+
+
+
 #endif
 
 // RenderTexture, fbo for texture rendering
 typedef struct GBuffers {
-    unsigned int id;        // OpenGL framebuffer object id
+    unsigned int id; // OpenGL framebuffer object id
     int width, height;
-    Texture albedo;         // Albedo buffer attachment texture
-    Texture metallic;       // Metallic buffer attachment texture
-    Texture normal;         // Normal buffer attachment texture
-    Texture roughness;      // Roughness buffer attachment texture
-    Texture emission;       // Emission buffer attachment texture
-    Texture ao;             // Ambient occlusion buffer attachment texture
-    Texture depth;          // Depth buffer attachment texture
+    Texture albedo; // Albedo buffer attachment texture
+    Texture metallic; // Metallic buffer attachment texture
+    Texture normal; // Normal buffer attachment texture
+    Texture roughness; // Roughness buffer attachment texture
+    Texture emission; // Emission buffer attachment texture
+    Texture ao; // Ambient occlusion buffer attachment texture
+    Texture depth; // Depth buffer attachment texture
 } GBuffers;
 
 typedef struct GBufferPresenter {
-    RenderTexture target;
     RenderTexture back[2];
     GBuffers source;
     RenderTexture occlusion; // FBO solely rendering to the ambient occlusion texture
@@ -50,10 +52,8 @@ void BeginGBufferMode(GBuffers buffers);
 void EndGBufferMode();
 
 void ClearPresenter(GBufferPresenter presenter);
-// Renders target to screen
+// Renders back[0] to screen
 void Present(GBufferPresenter presenter);
-// Adds target += back[0]
-void AddBackBuffer(GBufferPresenter presenter);
 
 #ifndef NO_CONVENIENCE
 void DrawDepth(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);

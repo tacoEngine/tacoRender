@@ -20,9 +20,15 @@ int main() {
     Init3D();
 
     Camera3D camera = (Camera3D) {
-            .position = (Vector3) {0, 2, -5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
-                    0, 1, 0
-            }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .position = (Vector3) {0, 2, -5},
+        .target = (Vector3) {0, 0, 0},
+        .up = (Vector3) {
+            0,
+            1,
+            0
+        },
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Texture albedo = LoadTexture("examples/assets/texture/albedo.png");
@@ -74,8 +80,6 @@ int main() {
 
             EndLightingPass();
         }
-
-        AddBackBuffer(presenter);
 
         ApplyToneMapping(presenter, TONE_MAP_REINHARD);
         ApplyGammaCorrection(presenter, 2.2);

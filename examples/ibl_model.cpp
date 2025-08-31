@@ -21,17 +21,24 @@ int main() {
     InitWindow(screenWidth, screenHeight, "tacoRender emissions sphere");
     Init3D();
 
-    Camera3D camera = (Camera3D){
-        .position = (Vector3){0, 2, -5}, .target = (Vector3){0, 0, 0}, .up = (Vector3){
-            0, 1, 0
+    Camera3D camera = (Camera3D) {
+        .position = (Vector3) {0, 2, -5},
+        .target = (Vector3) {0, 0, 0},
+        .up = (Vector3) {
+            0,
+            1,
+            0
         },
-        .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Model model = LoadModel("examples/assets/model/DamagedHelmet.glb");
 
-    TextureCubemap radiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/radiance.dds"), CUBEMAP_LAYOUT_AUTO_DETECT);
-    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/irradiance.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap radiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/radiance.dds"),
+                                                 CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/irradiance.hdr"),
+                                                   CUBEMAP_LAYOUT_AUTO_DETECT);
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
@@ -49,7 +56,7 @@ int main() {
 
             BeginMode3D(camera);
 
-            DrawModel(model, (Vector3){0, 0, 0}, 1.f, WHITE);
+            DrawModel(model, (Vector3) {0, 0, 0}, 1.f, WHITE);
 
             EndMode3D();
 
@@ -67,8 +74,6 @@ int main() {
 
             EndLightingPass();
         }
-
-        AddBackBuffer(presenter);
 
         ApplyToneMapping(presenter, TONE_MAP_REINHARD);
         ApplyGammaCorrection(presenter, 2.2);

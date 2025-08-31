@@ -20,10 +20,15 @@ int main() {
     Init3D();
 
     Camera3D camera = (Camera3D) {
-        .position = (Vector3) {-0.5, 1, 2}, .target = (Vector3) {0.5, 0, 2}, .up = (Vector3) {
-            0, 1, 0
+        .position = (Vector3) {-0.5, 1, 2},
+        .target = (Vector3) {0.5, 0, 2},
+        .up = (Vector3) {
+            0,
+            1,
+            0
         },
-        .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Texture red = LoadTextureFromImage(GenImageColor(1, 1, RED));
@@ -134,12 +139,7 @@ int main() {
 
         ApplyGammaCorrection(presenter, 2.2);
 
-        BeginDrawing();
-
-        ClearBackground(BLANK);
-
-        DrawTexture(presenter.target.texture, 0, 0, WHITE);
-        EndDrawing();
+        Present(presenter);
     }
 
     //Uninit3D();

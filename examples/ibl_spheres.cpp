@@ -19,11 +19,16 @@ int main() {
     InitWindow(screenWidth, screenHeight, "tacoRender emissions sphere");
     Init3D();
 
-    Camera3D camera = (Camera3D){
-        .position = (Vector3){0, 2, -5}, .target = (Vector3){0, 0, 0}, .up = (Vector3){
-            0, 1, 0
+    Camera3D camera = (Camera3D) {
+        .position = (Vector3) {0, 2, -5},
+        .target = (Vector3) {0, 0, 0},
+        .up = (Vector3) {
+            0,
+            1,
+            0
         },
-        .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Model spheres[4];
@@ -40,8 +45,8 @@ int main() {
         unsigned char met_channel = (i % 2) * 255;
         unsigned char rough_channel = i / 2 * 128 + 64;
 
-        Color metallic = Color{met_channel, met_channel, met_channel, 255};
-        Color rough = Color{rough_channel, rough_channel, rough_channel, 255};
+        Color metallic = Color {met_channel, met_channel, met_channel, 255};
+        Color rough = Color {rough_channel, rough_channel, rough_channel, 255};
 
         maps[MATERIAL_MAP_METALNESS].texture = LoadTextureFromImage(GenImageColor(1, 1, metallic));
         maps[MATERIAL_MAP_ROUGHNESS].texture = LoadTextureFromImage(GenImageColor(1, 1, rough));
@@ -49,8 +54,10 @@ int main() {
         maps[MATERIAL_MAP_OCCLUSION].texture = LoadTextureFromImage(GenImageColor(1, 1, WHITE));
     }
 
-    TextureCubemap radiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/radiance.dds"), CUBEMAP_LAYOUT_AUTO_DETECT);
-    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/irradiance.hdr"), CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap radiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/radiance.dds"),
+                                                 CUBEMAP_LAYOUT_AUTO_DETECT);
+    TextureCubemap irradiance = LoadTextureCubemap(LoadImage("examples/assets/ibl/irradiance.hdr"),
+                                                   CUBEMAP_LAYOUT_AUTO_DETECT);
 
     GBuffers buffers = LoadGBuffers(screenWidth, screenHeight);
     GBufferPresenter presenter = LoadPresenter(buffers);
@@ -66,7 +73,7 @@ int main() {
             BeginMode3D(camera);
 
             for (int i = 0; i < 4; i++) {
-                DrawModel(spheres[i], (Vector3){(float)(i % 2) - 0.5f, (float)(i / 2) - 0.5f, 0}, 0.25f, WHITE);
+                DrawModel(spheres[i], (Vector3) {(float) (i % 2) - 0.5f, (float) (i / 2) - 0.5f, 0}, 0.25f, WHITE);
             }
 
             EndMode3D();
@@ -85,8 +92,6 @@ int main() {
 
             EndLightingPass();
         }
-
-        AddBackBuffer(presenter);
 
         ApplyToneMapping(presenter, TONE_MAP_REINHARD);
         ApplyGammaCorrection(presenter, 2.2);

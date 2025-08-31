@@ -18,9 +18,15 @@ int main() {
     Init3D();
 
     Camera3D camera = (Camera3D) {
-            .position = (Vector3) {2, 3, 5}, .target = (Vector3) {0, 0, 0}, .up = (Vector3) {
-                    0, 1, 0
-            }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        .position = (Vector3) {2, 3, 5},
+        .target = (Vector3) {0, 0, 0},
+        .up = (Vector3) {
+            0,
+            1,
+            0
+        },
+        .fovy = 72.f,
+        .projection = CAMERA_PERSPECTIVE
     };
 
     Texture albedo = LoadTextureFromImage(GenImageColor(1, 1, BLUE));
@@ -67,10 +73,8 @@ int main() {
 
         LightPoint(presenter, camera, (Vector3) {-3, 0.5, 0}, 1, 510, DARKGRAY);
         LightPoint(presenter, camera, (Vector3) {-1, 0.5, 0}, 1, 510, GRAY);
-        LightPoint(presenter, camera, (Vector3) { 3, 0.5, 0}, 1, 510, LIGHTGRAY);
-        LightPoint(presenter, camera, (Vector3) { 1, 0.5, 0}, 1, 510, WHITE);
-
-        AddBackBuffer(presenter);
+        LightPoint(presenter, camera, (Vector3) {3, 0.5, 0}, 1, 510, LIGHTGRAY);
+        LightPoint(presenter, camera, (Vector3) {1, 0.5, 0}, 1, 510, WHITE);
 
         if (map) {
             ApplyToneMapping(presenter, TONE_MAP_REINHARD);

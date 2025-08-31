@@ -138,10 +138,10 @@ void RunLightShaderPro(GBufferPresenter presenter,
         if (eyeCount == 1) matModelViewProjection = MatrixMultiply(matModelViewProjection, matProjection);
         else {
             // Setup current eye viewport (half screen width)
-            rlViewport(eye * presenter.target.texture.width / 2,
+            rlViewport(eye * presenter.back[0].texture.width / 2,
                        0,
-                       presenter.target.texture.width / 2,
-                       presenter.target.texture.height);
+                       presenter.back[0].texture.width / 2,
+                       presenter.back[0].texture.height);
             matModelViewProjection = MatrixMultiply(
                 MatrixMultiply(matModelViewProjection, rlGetMatrixViewOffsetStereo(eye)),
                 rlGetMatrixProjectionStereo(eye));
@@ -210,19 +210,19 @@ void RunLightShader(GBufferPresenter presenter, Camera camera, Shader shader) {
 }
 
 void RunPostProcessShader(GBufferPresenter presenter, Shader shader) {
-    BeginTextureMode(presenter.back[0]);
+    BeginTextureMode(presenter.back[1]);
 
     BeginShaderMode(shader);
 
-    DrawTexture(presenter.target.texture, 0, 0, WHITE);
+    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
 
     EndShaderMode();
 
     EndTextureMode();
 
-    BeginTextureMode(presenter.target);
+    BeginTextureMode(presenter.back[0]);
 
-    DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
+    DrawTexture(presenter.back[1].texture, 0, 0, WHITE);
 
     EndTextureMode();
 }
@@ -287,7 +287,7 @@ void BlurTextureWithShader(BlurShader *shader, Texture texture, RenderTexture ba
 void BeginLightingPass(GBufferPresenter presenter) {
     rlEnableColorBlend();
 
-    BeginTextureMode(presenter.target);
+    BeginTextureMode(presenter.back[0]);
 
     BeginBlendMode(BLEND_ADD_COLORS);
 }
@@ -540,7 +540,7 @@ void DrawSkybox(Skybox skybox, Color tint) {
 }
 
 void ShadeFlat(GBufferPresenter presenter) {
-    BeginTextureMode(presenter.target);
+    BeginTextureMode(presenter.back[0]);
 
     DrawTexture(presenter.source.albedo, 0, 0, WHITE);
 
