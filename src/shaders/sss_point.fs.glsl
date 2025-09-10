@@ -48,25 +48,22 @@ float DepthFromPoint(vec2 position, vec2 lightPosition, float lightDepth) {
     return sam + slope * originDist;
 }
 
+const int SAMPLES = 4;
+
 void main() {
     vec3 lightPositionDepth = ScreenSpaceFromWorld(position);
     float linearLightDepth = LinearizeDepth(lightPositionDepth.z);
 
     vec2 toLight = normalize(lightPositionDepth.xy - fragTexCoord);
 
-    vec2 positions[4] = vec2[4](
-        fragTexCoord,
-        fragTexCoord + toLight * stepSize,
-        fragTexCoord + toLight * stepSize * 2.0,
-        fragTexCoord + toLight * stepSize * 3.0
-    );
+    float minDepth = LinearizeDepth(1.0);
 
-    float depth0 = LinearizeDepth(texture(depth, positions[0]).r);
-    float depth1 = DepthFromPoint(positions[1], lightPositionDepth.xy, linearLightDepth);
-    float depth2 = DepthFromPoint(positions[2], lightPositionDepth.xy, linearLightDepth);
-    float depth3 = DepthFromPoint(positions[3], lightPositionDepth.xy, linearLightDepth);
+    for (int i = 0; i < SAMPLES; i++) {
+        vec2 position = fragTexCoord + toLight * stepSize * float(i);
 
-    float minDepth = min(min(min(depth0, depth1), depth2), depth3);
+        float depth = DepthFromPoint(position, lightPositionDepth.xy, linearLightDepth);
+        minDepth = min(minDepth, depth);
+    }
 
     finalColor = DelinearizeDepth(minDepth);
 }
