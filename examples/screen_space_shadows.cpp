@@ -106,6 +106,8 @@ int main() {
 
         ClearPresenter(presenter);
 
+        ComputeScreenShadowMap(presenter, shadowMap, camera, light_position);
+
         { // Shade scene
             BeginLightingPass(presenter);
 
@@ -116,8 +118,6 @@ int main() {
             EndLightingPass();
         }
 
-        ComputeScreenShadowMap(presenter, shadowMap, camera, light_position);
-
         ApplyGammaCorrection(presenter, 2.2);
 
         BeginDrawing();
@@ -125,7 +125,7 @@ int main() {
         ClearBackground(BLANK);
 
         if (draw_mode == shaded)
-            DrawTexture(presenter.target.texture, 0, 0, WHITE);
+            DrawTexture(presenter.back[0].texture, 0, 0, WHITE);
         else if (draw_mode == unshaded) {
             BeginShaderMode(GetShader(SHADER_FLIP_Y));
             DrawTexture(presenter.source.albedo, 0, 0, WHITE);

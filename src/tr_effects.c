@@ -531,21 +531,24 @@ void ComputeScreenShadowMap(GBufferPresenter presenter, ScreenShadowMap shadowMa
         projMatLoc = GetShaderLocation(sssShader, "projMat");
     }
 
-    double top = 0.01 * tan(camera.fovy * 0.5 * DEG2RAD);
+    double top = RL_CULL_DISTANCE_NEAR * tan(camera.fovy * 0.5 * DEG2RAD);
     double right = top * ((float) GetScreenWidth() / (float) GetScreenHeight());
-    Matrix projection = MatrixFrustum(-right, right, -top, top, 0.01, 1000.0);
+    Matrix projection = MatrixFrustum(-right, right, -top, top, RL_CULL_DISTANCE_NEAR, RL_CULL_DISTANCE_FAR);
 
 
     const unsigned int iterations = 128;
 
     // Locking to width, because it's more common to be wider and even if its not, the fmin is just not worth it
-    float stepSize = 1.f / (float) presenter.target.texture.width;
+    Vector2 stepSize = (Vector2) {
+        1.f / (float) presenter.back[0].texture.height,
+        1.f / (float) presenter.back[0].texture.width
+    };
 
     SetShaderValueMatrix(sssShader, viewMatLoc, GetCameraMatrix(camera));
     SetShaderValueMatrix(sssShader, projMatLoc, projection);
 
     SetShaderValue(sssShader, positionLoc, &position, SHADER_UNIFORM_VEC3);
-    SetShaderValue(sssShader, stepSizeLoc, &stepSize, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(sssShader, stepSizeLoc, &stepSize, SHADER_UNIFORM_VEC2);
 
     for (unsigned int i = 0; i < iterations * 2; i++) {
         BeginTextureMode(shadowMap.back[!(i & 1)]);

@@ -6,12 +6,12 @@ out float finalColor;
 
 uniform sampler2D depth;
 uniform vec3 position;
-uniform float stepSize;
+uniform vec2 stepSize;
 uniform mat4 viewMat;
 uniform mat4 projMat;
 
-const float CULL_NEAR = 0.01;
-const float CULL_FAR = 1000.0;
+const float CULL_NEAR = 0.05;
+const float CULL_FAR = 4000.0;
 
 float LinearizeDepth(float depth) {
     float z = depth * 2.0 - 1.0; // back to NDC
