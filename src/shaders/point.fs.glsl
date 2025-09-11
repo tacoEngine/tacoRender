@@ -85,7 +85,7 @@ void main() {
     vec3 worldPos = WorldPosFromDepth(dist);
 
     float lightDistance = distance(pos, worldPos);
-    if (lightDistance * lightDistance > radius) discard;
+    if (lightDistance > radius) discard;
 
     vec4 albedo = pow(texture(albedoMap, fragTexCoord), vec4(vec3(2.2), 1));
     vec3 normal = texture(normalMap, fragTexCoord).rgb;
