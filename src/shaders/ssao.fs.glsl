@@ -35,8 +35,7 @@ vec3 WorldPosFromDepth(float depth) {
 }
 
 vec3 ViewPosFromWorld(vec3 wpos) {
-    float z = wpos.z * 2.0 - 1.0;
-    vec4 clipSpacePosition = vec4(wpos.xy * 2.0 - 1.0, z, 1.0);
+    vec4 clipSpacePosition = vec4(wpos * 2.0 - 1.0, 1.0);
     vec4 viewSpacePosition = invProj * clipSpacePosition;
     viewSpacePosition /= viewSpacePosition.w;
     return viewSpacePosition.xyz;
