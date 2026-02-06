@@ -123,7 +123,7 @@ int main() {
             EndShadowMap();
         }
 
-        FilterShadowMap(shadowMap);
+        FilterShadowMap(shadowMap, 1);
 
         ClearPresenter(presenter);
 
