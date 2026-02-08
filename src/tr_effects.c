@@ -401,8 +401,8 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
     if (cascade == 0)
         previousCascade = 1.f;
     else
-        previousCascade = -(shadowMap.dists[cascade - 1] - 2);
-    float nextCascade = -(shadowMap.dists[cascade] + 2);
+        previousCascade = -shadowMap.dists[cascade - 1];
+    float nextCascade = -shadowMap.dists[cascade];
 
     // fixme: This is a bad guess for the aspect ratio
     float aspectRatio = (float) GetScreenWidth() / (float) GetScreenHeight();
@@ -451,7 +451,7 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
         maxZ = fmaxf(maxZ, lightCoordinate.z);
     }
 
-    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, -maxZ - (maxZ - minZ), -minZ);
+    Matrix lightProj = MatrixOrtho(minX, maxX, minY, maxY, -maxZ - (maxZ - minZ) * 1.5, -minZ);
 
     rlSetMatrixProjection(lightProj);
     rlSetMatrixModelview(lightView);
