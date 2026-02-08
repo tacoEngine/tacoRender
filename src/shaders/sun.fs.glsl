@@ -142,12 +142,21 @@ void main() {
 
     float shadowFactor = 1.0;
 
-    for (int i = 0; i < cascadeCount; i++) {
+    int i;
+
+    for (i = 0; i < cascadeCount; i++) {
         if (linearDist <= cascadeDists[i]) {
             vec4 lightSpacePos = cascadeMats[i] * vec4(worldPos, 1);
             shadowFactor = CalcShadowFactor(i, lightSpacePos);
             break;
         }
+    }
+
+    if (i == cascadeCount) {
+        vec4 lightSpacePos = cascadeMats[cascadeCount - 1] * vec4(worldPos, 1);
+
+        if (lightSpacePos.x >= -1 && lightSpacePos.x <= 1 && lightSpacePos.y >= -1 && lightSpacePos.y <= 1)
+            shadowFactor = CalcShadowFactor(cascadeCount - 1, lightSpacePos);
     }
 
     vec3 radiance = color * intensity;
