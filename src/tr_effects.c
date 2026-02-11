@@ -467,11 +467,11 @@ void EndShadowMap() {
     EndTextureMode();
 }
 
-void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations) {
+void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations, unsigned int maxCascade) {
     if (iterations == 0) {
         return;
     }
-    for (int i = 0; i < shadowMap.cascades; i++) {
+    for (int i = 0; i < maxCascade; i++) {
         Texture tex;
         tex.id = shadowMap.ids[i];
         tex.width = shadowMap.size;

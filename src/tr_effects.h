@@ -75,7 +75,7 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance);
 void UnloadShadowMap(ShadowMap);
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade);
 void EndShadowMap();
-void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations);
+void FilterShadowMap(ShadowMap shadowMap, unsigned int iterations, unsigned int maxCascade);
 
 Skybox LoadSkybox(const char *filename);
 Skybox LoadSkyboxImage(Image image);
