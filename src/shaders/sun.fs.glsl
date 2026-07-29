@@ -13,6 +13,7 @@ uniform sampler2D depth;
 uniform sampler2D cascades[8];
 uniform mat4 cascadeMats[8];
 uniform float cascadeDists[8];
+uniform float cascadeSpans[8];
 uniform int cascadeCount;
 uniform int cascadeSize;
 
@@ -105,6 +106,9 @@ float SampleCascade(int cascadeIndex, vec3 coords) {
     return 1.0;
 }
 
+const float SHADOW_HARDNESS = 6.0;
+const float SHADOW_BIAS = 0.05;
+
 float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos) {
     float d = (lightSpacePos.z / lightSpacePos.w) * 0.5 + 0.5;
 
@@ -112,11 +116,13 @@ float CalcShadowFactor(int cascadeIndex, vec4 lightSpacePos) {
         return 1.0;
 
     float z = SampleCascade(cascadeIndex, lightSpacePos.xyw * 0.5 + 0.5);
-    const float c = 160;
 
-    float shadow = exp(-c * (d - z));
+    float span = max(cascadeSpans[cascadeIndex], 0.001);
+    float c = SHADOW_HARDNESS * span;
 
-    return clamp(shadow, 0, 1);
+    float shadow = exp(-c * (d - z - SHADOW_BIAS / span));
+
+    return clamp(shadow, 0.0, 1.0);
 }
 
 void main() {

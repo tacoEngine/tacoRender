@@ -327,6 +327,7 @@ ShadowMap LoadShadowMap(int size, int cascades, float cascadeDistance) {
         target.ids = RL_CALLOC(8, sizeof(unsigned int));
         target.projections = RL_CALLOC(cascades, sizeof(Matrix));
         target.dists = RL_CALLOC(cascades, sizeof(float));
+        target.spans = RL_CALLOC(cascades, sizeof(float));
 
         glGenTextures(cascades, target.ids);
 
@@ -381,6 +382,7 @@ void UnloadShadowMap(ShadowMap shadowMap) {
     RL_FREE(shadowMap.ids);
     RL_FREE(shadowMap.projections);
     RL_FREE(shadowMap.dists);
+    RL_FREE(shadowMap.spans);
 }
 
 void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, int cascade) {
@@ -458,6 +460,9 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
 
     // Calculate model-view-projection matrix (MVP)
     shadowMap.projections[cascade] = MatrixMultiply(lightView, lightProj);
+
+    // World distance the ortho near..far range covers
+    shadowMap.spans[cascade] = (maxZ - minZ) * 2.5f;
 
     rlEnableDepthTest(); // Enable DEPTH_TEST for 3D
 }
@@ -626,7 +631,7 @@ void LightSun(GBufferPresenter presenter,
               ShadowMap shadowMap) {
     static Shader sun = {0};
     static int dirLoc, intensityLoc, colorLoc, cascadeCountLoc, cascadeSizeLoc, cascadeLocs[8], cascadeMatLocs[8],
-               cascadeDistsLocs[8];
+               cascadeDistsLocs[8], cascadeSpansLocs[8];
     if (sun.id == 0) {
         sun = GetShader(SHADER_SUN);
         dirLoc = GetShaderLocation(sun, "direction");
@@ -638,6 +643,7 @@ void LightSun(GBufferPresenter presenter,
             cascadeLocs[i] = GetShaderLocation(sun, TextFormat("cascades[%i]", i));
             cascadeMatLocs[i] = GetShaderLocation(sun, TextFormat("cascadeMats[%i]", i));
             cascadeDistsLocs[i] = GetShaderLocation(sun, TextFormat("cascadeDists[%i]", i));
+            cascadeSpansLocs[i] = GetShaderLocation(sun, TextFormat("cascadeSpans[%i]", i));
         }
     }
 
@@ -654,6 +660,7 @@ void LightSun(GBufferPresenter presenter,
     for (int i = 0; i < shadowMap.cascades; i++) {
         SetShaderValueMatrix(sun, cascadeMatLocs[i], shadowMap.projections[i]);
         SetShaderValue(sun, cascadeDistsLocs[i], &shadowMap.dists[i], SHADER_UNIFORM_FLOAT);
+        SetShaderValue(sun, cascadeSpansLocs[i], &shadowMap.spans[i], SHADER_UNIFORM_FLOAT);
     }
 
     if (shadowMap.ids)

@@ -43,6 +43,7 @@ typedef struct ShadowMap {
     RenderTexture back[2];
     Matrix *projections;
     float *dists;
+    float *spans;
     int size;
     int cascades;
 } ShadowMap;
