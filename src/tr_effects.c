@@ -406,10 +406,10 @@ void BeginShadowMap(ShadowMap shadowMap, Camera camera, Vector3 lightDirection, 
         previousCascade = -shadowMap.dists[cascade - 1];
     float nextCascade = -shadowMap.dists[cascade];
 
-    // fixme: This is a bad guess for the aspect ratio
     float aspectRatio = (float) GetScreenWidth() / (float) GetScreenHeight();
-    float tanHalfHFOV = tanf(DEG2RAD * (camera.fovy * aspectRatio / 2.0f));
     float tanHalfVFOV = tanf(DEG2RAD * (camera.fovy / 2.0f));
+    // Horizontal half-angle follows from the vertical one: tan(h/2) = tan(v/2) * aspect.
+    float tanHalfHFOV = tanHalfVFOV * aspectRatio;
 
     float xn = previousCascade * tanHalfHFOV;
     float xf = nextCascade * tanHalfHFOV;
